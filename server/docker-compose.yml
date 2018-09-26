@@ -10,6 +10,6 @@ services:
   mongo:
     image: mongo
     volumes:
-      - ./data:/data/db
+      - /srv/IsThereAnyNetwork:/data/db
     ports:
       - "27017:27017"
