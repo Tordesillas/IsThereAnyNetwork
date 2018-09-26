@@ -1,0 +1,17 @@
+before_script:
+  - cd server
+stages:
+  - build
+  - deploy
+build:
+  stage: build
+  script:
+    - docker-compose build
+deploy:
+  stage: deploy
+  only:
+    - master
+  script:
+    - docker-compose rm -f -s
+    - docker-compose up -d
+
