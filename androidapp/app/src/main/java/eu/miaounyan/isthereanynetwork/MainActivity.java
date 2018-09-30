@@ -1,14 +1,18 @@
 package eu.miaounyan.isthereanynetwork;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.telephony.PhoneStateListener;
+import android.telephony.SignalStrength;
+import android.telephony.TelephonyManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,6 +24,8 @@ public class MainActivity extends AppCompatActivity {
     private int remainingTime;
     private CountDownTimer cdt;
     private Button scanButton;
+    private TelephonyManager telephonyManager;
+    private int signalStrength;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +43,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /* Timer */
         View scrollView = findViewById(R.id.main_page);
         timeCountTextView = scrollView.findViewById(R.id.timeCount);
         timeCountProgressBar = scrollView.findViewById(R.id.timeCount_progress_bar);
@@ -50,8 +57,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 launchTimer();
+                scan();
             }
         });
+
+        /* Network scan */
+        telephonyManager = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+        signalStrength = 0;
+        telephonyManager.listen(new MyPhoneStateListener(), PhoneStateListener.LISTEN_SIGNAL_STRENGTHS);
     }
 
     @Override
@@ -93,5 +106,21 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         cdt.start();
+    }
+
+    private void scan() {
+        String operatorName = telephonyManager.getNetworkOperatorName();
+        String simOperatorName = telephonyManager.getSimOperatorName();
+
+        ((TextView) findViewById(R.id.data)).setText("Network operator: " + operatorName + "\nSim operator: " + simOperatorName +
+                "\nSignal strength: " + signalStrength + " dBm");
+    }
+
+    class MyPhoneStateListener extends PhoneStateListener {
+        @Override
+        public void onSignalStrengthsChanged(SignalStrength sigStrength) {
+            super.onSignalStrengthsChanged(sigStrength);
+            signalStrength = (2 * sigStrength.getGsmSignalStrength()) - 113; // -> dBm
+        }
     }
 }
