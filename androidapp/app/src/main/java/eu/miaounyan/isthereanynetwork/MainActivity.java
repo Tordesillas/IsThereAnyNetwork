@@ -12,6 +12,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.telephony.CellInfo;
+import android.telephony.CellInfoCdma;
 import android.telephony.CellInfoGsm;
 import android.telephony.CellInfoLte;
 import android.telephony.CellInfoWcdma;
@@ -219,6 +220,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public int getSignalStrengthDbm(CellInfo cellInfo) {
+        if (cellInfo instanceof CellInfoCdma) {
+            return ((CellInfoCdma) cellInfo).getCellSignalStrength().getDbm();
+        }
+        if (cellInfo instanceof CellInfoGsm) {
+            return ((CellInfoGsm) cellInfo).getCellSignalStrength().getDbm();
+        }
+        if (cellInfo instanceof CellInfoLte) {
+            return ((CellInfoLte) cellInfo).getCellSignalStrength().getDbm();
+        }
+        if (cellInfo instanceof CellInfoWcdma) {
+            return ((CellInfoWcdma) cellInfo).getCellSignalStrength().getDbm();
+        }
+        return 0;
+    }
+
     class MyPhoneStateListener extends PhoneStateListener {
         @Override
         public void onSignalStrengthsChanged(SignalStrength sigStrength) {
@@ -240,6 +257,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             getLTEsignalStrength(sigStrength);
+            Log.d(this.getClass().getName(), "miaou" + telephonyManager.getAllCellInfo().stream().filter(CellInfo::isRegistered).map(MainActivity.this::getSignalStrengthDbm).findAny().orElse(1));
         }
 
         @Override
