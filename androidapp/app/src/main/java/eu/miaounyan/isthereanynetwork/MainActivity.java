@@ -6,12 +6,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationListener;
+import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -27,10 +33,14 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Method;
+import java.util.Locale;
 
 import eu.miaounyan.isthereanynetwork.controller.MapActivity;
 
@@ -54,11 +64,21 @@ public class MainActivity extends AppCompatActivity {
     private int networkType;
 
     /* Network View Attributes */
+    private View networkView;
     private TextView networkInfo;
     private TextView networkData;
 
+    /* Location Attributes */
+    private GPSTracker gpsTracker;
+
+    /* Location View Attributes */
+    private View locationView;
+    private TextView locationInfo;
+    private TextView locationData;
+
     /* Permission */
-    private static final String[] PERMISSIONS = {Manifest.permission.READ_PHONE_STATE,
+    private static final String[] PERMISSIONS = {
+            Manifest.permission.INTERNET, Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
     private static final int PERMISSION_REQUEST = 100;
 
@@ -72,25 +92,48 @@ public class MainActivity extends AppCompatActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(view -> launchMap());
 
-        networkOnCreate();
+        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        LinearLayout parent = findViewById(R.id.main_content_linear_layout);
+
+        networkOnCreate(inflater, parent);
         timerScannerOnCreate();
         checkPermissions();
+        locationOnCreate(inflater, parent);
     }
 
-    private void networkOnCreate() {
-        LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        ViewGroup parent = findViewById(R.id.main_content_linear_layout);
-        inflater.inflate(R.layout.sensor, parent);
+    private void networkOnCreate(LayoutInflater inflater, ViewGroup parent) {
+        networkView = inflater.inflate(R.layout.sensor, parent, false);
 
-        TextView networkTitle = findViewById(R.id.sensor_title_text_view);
+        ImageView networkIcon = networkView.findViewById(R.id.sensor_image_view);
+        networkIcon.setImageResource(R.drawable.ic_antenna_icon);
+
+        TextView networkTitle = networkView.findViewById(R.id.sensor_title_text_view);
         networkTitle.setText("Network");
-        networkInfo = findViewById(R.id.info_text_view);
+        networkInfo = networkView.findViewById(R.id.info_text_view);
         networkInfo.setText("No Data");
-        networkData = findViewById(R.id.data_text_view);
+        networkData = networkView.findViewById(R.id.data_text_view);
 
         signalStrength = 0;
         myPhoneStateListener = new MyPhoneStateListener();
         telephonyManager = (TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE);
+
+        parent.addView(networkView);
+    }
+
+    private void locationOnCreate(LayoutInflater inflater, ViewGroup parent) {
+        locationView = inflater.inflate(R.layout.sensor, parent, false);
+        gpsTracker = new GPSTracker(this);
+
+        ImageView locationIcon = locationView.findViewById(R.id.sensor_image_view);
+        locationIcon.setImageResource(R.drawable.ic_gps_location_icon);
+
+        TextView locationTitle = locationView.findViewById(R.id.sensor_title_text_view);
+        locationTitle.setText("GPS Location");
+        locationInfo = locationView.findViewById(R.id.info_text_view);
+        locationInfo.setText("No Data Available");
+        locationData = locationView.findViewById(R.id.data_text_view);
+
+        parent.addView(locationView);
     }
 
     private void timerScannerOnCreate() {
@@ -115,11 +158,12 @@ public class MainActivity extends AppCompatActivity {
     private void checkPermissions() {
         // Checks the Android version of the device.
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            boolean canReadExternalStorage = checkIfAlreadyHavePermission(PERMISSIONS[0]);
-            boolean canReadFineLocation = checkIfAlreadyHavePermission(PERMISSIONS[1]);
-            boolean canReadCoarseLocation = checkIfAlreadyHavePermission(PERMISSIONS[2]);
+            boolean canUseInternet = checkIfAlreadyHavePermission(PERMISSIONS[0]);
+            boolean canReadExternalStorage = checkIfAlreadyHavePermission(PERMISSIONS[1]);
+            boolean canReadFineLocation = checkIfAlreadyHavePermission(PERMISSIONS[2]);
+            boolean canReadCoarseLocation = checkIfAlreadyHavePermission(PERMISSIONS[3]);
 
-            if (!canReadExternalStorage || !canReadFineLocation || !canReadCoarseLocation) {
+            if (!canUseInternet || !canReadExternalStorage || !canReadFineLocation || !canReadCoarseLocation) {
                 requestPermissions(PERMISSIONS, PERMISSION_REQUEST);
             } else {
                 // Permission was granted.
@@ -178,12 +222,15 @@ public class MainActivity extends AppCompatActivity {
     private void launchTimer() {
         remainingTime = SCAN_TIME;
         Animation startFadeOutAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.fade_out_animation);
-        startFadeOutAnimation.setAnimationListener(new Animation.AnimationListener()
-        {
+        startFadeOutAnimation.setAnimationListener(new Animation.AnimationListener() {
             @Override
-            public void onAnimationStart(Animation animation) {}
+            public void onAnimationStart(Animation animation) {
+            }
+
             @Override
-            public void onAnimationRepeat(Animation animation) {}
+            public void onAnimationRepeat(Animation animation) {
+            }
+
             @Override
             public void onAnimationEnd(Animation animation) {
                 scanButtonContainer.setVisibility(View.INVISIBLE);
@@ -208,10 +255,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void scan() {
+        /* Network */
         String networkType = networkType();
         String networkOperator = telephonyManager.getNetworkOperatorName();
         String networkSimOperator = telephonyManager.getSimOperatorName();
         networkInfo.setText(String.format("Network operator - %s \nSim Operator - %s \nNetwork type - %s", networkOperator, networkSimOperator, networkType));
+
+        gpsTracker.getLocation();
+        locationData.setText(String.format("Lat: %.3f\nLon: %.3f", gpsTracker.getLatitude(), gpsTracker.getLongitude()));
     }
 
     private String networkType() {
