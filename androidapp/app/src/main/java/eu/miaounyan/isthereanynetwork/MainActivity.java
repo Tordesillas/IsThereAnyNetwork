@@ -11,6 +11,7 @@ import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Network;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -32,6 +33,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -43,6 +45,11 @@ import java.lang.reflect.Method;
 import java.util.Locale;
 
 import eu.miaounyan.isthereanynetwork.controller.MapActivity;
+import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetwork;
+import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetworkService;
+import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.NetworkState;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -76,6 +83,10 @@ public class MainActivity extends AppCompatActivity {
     private TextView locationInfo;
     private TextView locationData;
 
+    /* Send */
+    private Button sendButton;
+    private IsThereAnyNetwork isThereAnyNetwork;
+
     /* Permission */
     private static final String[] PERMISSIONS = {
             Manifest.permission.INTERNET, Manifest.permission.READ_PHONE_STATE,
@@ -99,6 +110,7 @@ public class MainActivity extends AppCompatActivity {
         timerScannerOnCreate();
         checkPermissions();
         locationOnCreate(inflater, parent);
+        sendOnCreate();
     }
 
     private void networkOnCreate(LayoutInflater inflater, ViewGroup parent) {
@@ -152,6 +164,27 @@ public class MainActivity extends AppCompatActivity {
         scanButton.setOnClickListener(view -> {
             Snackbar.make(view, "Scanning...", Snackbar.LENGTH_LONG);
             launchTimer();
+        });
+    }
+
+    private void sendOnCreate() {
+        isThereAnyNetwork = new IsThereAnyNetwork();
+        IsThereAnyNetworkService service = isThereAnyNetwork.connect();
+
+        sendButton = findViewById(R.id.send_button);
+        sendButton.setOnClickListener(view -> {
+            Log.d(this.getClass().getName(), "Sending network state");
+            Toast.makeText(getApplicationContext(), "Sending...", Toast.LENGTH_LONG);
+            service.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), signalStrength, telephonyManager.getNetworkOperatorName(), "", "LTE"/*FIXME*/))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(r -> {
+                        Log.d(this.getClass().getName(), "Sent network state");
+                        Toast.makeText(getApplicationContext(), "Sent " + r.getSignalStrength(), Toast.LENGTH_LONG);
+                    }, err -> {
+                        Log.e(this.getClass().getName(), "Error: " + err);
+                        Toast.makeText(getApplicationContext(), "Error " + err.getMessage(), Toast.LENGTH_LONG);
+                    });
         });
     }
 
