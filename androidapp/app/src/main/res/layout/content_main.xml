@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_content_scroll_view"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
@@ -10,6 +10,7 @@
     tools:showIn="@layout/activity_main">
 
     <LinearLayout
+        android:id="@+id/main_content_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical">
@@ -24,38 +25,51 @@
                 style="?android:attr/progressBarStyleHorizontal"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
-                android:rotation="-90"
-                android:indeterminate="false"
                 android:layout_centerInParent="true"
+                android:indeterminate="false"
                 android:max="30"
                 android:progress="25"
-                android:scaleY="-1"
-                android:progressDrawable="@drawable/circular_progressbar" />
+                android:progressDrawable="@drawable/circular_progressbar"
+                android:rotation="-90"
+                android:scaleY="-1" />
 
             <TextView
                 android:id="@+id/timeCount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:layout_marginTop="5dp"
                 android:layout_marginBottom="5dp"
+                android:layout_marginTop="5dp"
                 android:textColor="@color/colorAccent"
-                android:textStyle="bold"
-                android:textSize="45sp"/>
+                android:textSize="45sp"
+                android:textStyle="bold" />
+
+            <FrameLayout
+                android:id="@+id/scan_button_container_frame_layout"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:layout_centerInParent="true"
+                android:layout_gravity="bottom|end">
+
+                <android.support.design.widget.FloatingActionButton
+                    android:id="@+id/scan_button"
+                    android:layout_width="120dp"
+                    android:layout_height="120dp"
+                    android:layout_gravity="center"
+                    app:backgroundTint="@color/lightWhite" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:elevation="16dp"
+                    android:text="Scan now"
+                    android:textAppearance="?android:attr/textAppearanceMedium"
+                    android:textColor="@color/colorAccent" />
+            </FrameLayout>
+
         </RelativeLayout>
 
-        <Button
-            android:id="@+id/scan_button"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:text="Scan now"/>
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/data"
-            android:padding="40dp"/>
     </LinearLayout>
 
 </ScrollView>
