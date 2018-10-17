@@ -42,7 +42,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.lang.reflect.Method;
+import java.util.Date;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
 
 import eu.miaounyan.isthereanynetwork.controller.MapActivity;
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetwork;
@@ -167,6 +173,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    private String getCurrentTimeDate() {
+        Date now = new Date();
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+        return dateFormat.format(now);
+    }
+
     private void sendOnCreate() {
         isThereAnyNetwork = new IsThereAnyNetwork();
         IsThereAnyNetworkService service = isThereAnyNetwork.connect();
@@ -175,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         sendButton.setOnClickListener(view -> {
             Log.d(this.getClass().getName(), "Sending network state");
             Toast.makeText(getApplicationContext(), "Sending...", Toast.LENGTH_LONG);
-            service.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), signalStrength, telephonyManager.getNetworkOperatorName(), "", "LTE"/*FIXME*/))
+            service.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), signalStrength, telephonyManager.getNetworkOperatorName(), getCurrentTimeDate(), networkType()))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(r -> {
