@@ -1,0 +1,21 @@
+[
+  "GPRS",
+  "EDGE",
+  "UMTS",
+  "CDMA",
+  "EVDO rev. 0",
+  "EVDO rev. A",
+  "1xRTT",
+  "HSDPA",
+  "HSUPA",
+  "HSPA",
+  "iDen",
+  "EVDO rev. B",
+  "LTE",
+  "eHRPD",
+  "HSPA+",
+  "GSM",
+  "TD_SCDMA",
+  "IWLAN",
+  "Unknown"
+]
