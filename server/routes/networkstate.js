@@ -5,7 +5,13 @@ var router = express.Router();
 router.route('/')
   /* GET network results listing. */
   .get(function(req, res, next) {
-    mongoose.model('networkstate').find({}, function (err, networkstates) {
+    var researchparams = {};
+    if (req.query.from)
+      researchparams.date = Object.assign(researchparams.date || {}, { '$gte': req.query.from });
+    if (req.query.to)
+      researchparams.date = Object.assign(researchparams.date || {}, { '$lte': req.query.to });
+
+    mongoose.model('networkstate').find(researchparams, function (err, networkstates) {
       if (err) {
         res.status(500);
         res.send({error: err});
@@ -29,7 +35,9 @@ router.route('/')
       }
     });
   });
+
 router.route('/:id')
+  /* GET single networkstate by id */
   .get(function(req, res, next) {
     mongoose.model('networkstate').findOne({_id: mongoose.Types.ObjectId(req.params.id)}, function(err, networkstate) {
       if (err) {
