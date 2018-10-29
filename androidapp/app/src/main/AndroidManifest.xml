@@ -25,6 +25,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".controller.MapActivity" />
+        <receiver android:name=".service.background.AlarmReceiver"></receiver>
     </application>
 
 </manifest>

@@ -1,4 +1,4 @@
-package eu.miaounyan.isthereanynetwork;
+package eu.miaounyan.isthereanynetwork.service;
 
 import android.app.AlertDialog;
 import android.app.Service;
