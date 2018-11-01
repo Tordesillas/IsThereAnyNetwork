@@ -2,8 +2,6 @@ package eu.miaounyan.isthereanynetwork.service.telephony
 
 import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.support.v4.content.ContextCompat
 import android.telephony.PhoneStateListener
 import android.telephony.SignalStrength
 import android.telephony.TelephonyManager
@@ -54,11 +52,10 @@ class Network(private val telephonyManager: TelephonyManager) {
             }
         }
     }
+
     fun checkPermissions(context: Context) : Boolean {
         return pmanager.checkPermissions(context, Manifest.permission.READ_PHONE_STATE, Manifest.permission.ACCESS_COARSE_LOCATION);
     }
-
-
 
     @JvmOverloads fun listen(context: Context, callback: () -> Unit = {}) {
         phoneStateListener.callback = callback;
@@ -85,7 +82,7 @@ class Network(private val telephonyManager: TelephonyManager) {
 
             for (mthd in methods) {
                 if (mthd.name == "getLteSignalStrength") {
-                    val LTESignalStrength = mthd.invoke(sigStrength, *arrayOf()) as Int
+                    val LTESignalStrength = mthd.invoke(sigStrength) as Int
                     Log.i(this.javaClass.name, "getLteSignalStrength= " + (LTESignalStrength - 140))
                     return LTESignalStrength
                 }

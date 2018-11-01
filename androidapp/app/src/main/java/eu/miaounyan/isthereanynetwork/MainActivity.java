@@ -19,13 +19,10 @@ import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -33,9 +30,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Date;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -51,24 +48,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
-
     /* Timer Attributes */
     private final static int SCAN_TIME = 30;
     private int remainingTime;
 
     private FrameLayout scanButtonContainer;
-    private FloatingActionButton scanButton;
     private ProgressBar timeCountProgressBar;
     private TextView timeCountTextView;
     private CountDownTimer cdt;
 
-    /* Network Attributes */
-    private int signalStrength;
-    private int signalLevel;
-    private int networkType;
-
     /* Network View Attributes */
-    private View networkView;
     private TextView networkInfo;
     private TextView networkData;
 
@@ -76,12 +65,10 @@ public class MainActivity extends AppCompatActivity {
     private GPSTracker gpsTracker;
 
     /* Location View Attributes */
-    private View locationView;
     private TextView locationInfo;
     private TextView locationData;
 
     /* Send */
-    private Button sendButton;
     private IsThereAnyNetwork isThereAnyNetwork;
     private IsThereAnyNetworkService isThereAnyNetworkService;
 
@@ -102,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
 
         FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(view -> launchMap());
+        fab.setOnClickListener(view -> startActivity(new Intent(MainActivity.this, MapActivity.class)));
 
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout parent = findViewById(R.id.main_content_linear_layout);
@@ -117,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void networkOnCreate(LayoutInflater inflater, ViewGroup parent) {
-        networkView = inflater.inflate(R.layout.sensor, parent, false);
+        View networkView = inflater.inflate(R.layout.sensor, parent, false);
 
         ImageView networkIcon = networkView.findViewById(R.id.sensor_image_view);
         networkIcon.setImageResource(R.drawable.ic_antenna_icon);
@@ -128,14 +115,13 @@ public class MainActivity extends AppCompatActivity {
         networkInfo.setText("No Data");
         networkData = networkView.findViewById(R.id.data_text_view);
 
-        signalStrength = 0;
         network = new Network((TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE));
 
         parent.addView(networkView);
     }
 
     private void locationOnCreate(LayoutInflater inflater, ViewGroup parent) {
-        locationView = inflater.inflate(R.layout.sensor, parent, false);
+        View locationView = inflater.inflate(R.layout.sensor, parent, false);
         gpsTracker = new GPSTracker(this);
 
         ImageView locationIcon = locationView.findViewById(R.id.sensor_image_view);
@@ -155,15 +141,13 @@ public class MainActivity extends AppCompatActivity {
         scanButtonContainer.setBackground(new ColorDrawable(Color.TRANSPARENT));
 
         timeCountTextView = findViewById(R.id.timeCount);
-        //timeCountTextView.setVisibility(View.INVISIBLE);
         timeCountProgressBar = findViewById(R.id.timeCount_progress_bar);
 
         timeCountProgressBar.setMax(SCAN_TIME);
         timeCountProgressBar.setProgress(remainingTime);
         timeCountTextView.setText(SCAN_TIME + "");
 
-        scanButton = findViewById(R.id.scan_button);
-        scanButton.setOnClickListener(view -> {
+        findViewById(R.id.scan_button).setOnClickListener(view -> {
             Snackbar.make(view, "Scanning...", Snackbar.LENGTH_LONG);
             launchTimer();
         });
@@ -180,10 +164,7 @@ public class MainActivity extends AppCompatActivity {
         isThereAnyNetwork = new IsThereAnyNetwork();
         isThereAnyNetworkService = isThereAnyNetwork.connect();
 
-        sendButton = findViewById(R.id.send_button);
-        sendButton.setOnClickListener(view -> {
-            sendNetworkState(getApplicationContext());
-        });
+        findViewById(R.id.send_button).setOnClickListener(view -> sendNetworkState(getApplicationContext()));
     }
 
     private void sendNetworkState(Context context) {
@@ -226,6 +207,7 @@ public class MainActivity extends AppCompatActivity {
             network.listen(getApplicationContext());
         }
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == PERMISSION_REQUEST) {
@@ -237,32 +219,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void launchMap() {
-        startActivity(new Intent(MainActivity.this, MapActivity.class));
     }
 
     private void launchTimer() {

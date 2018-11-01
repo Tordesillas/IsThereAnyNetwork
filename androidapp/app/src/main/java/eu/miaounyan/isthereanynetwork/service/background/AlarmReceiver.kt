@@ -34,7 +34,6 @@ class AlarmReceiver(val isThereAnyNetwork : IsThereAnyNetwork = IsThereAnyNetwor
         val network = eu.miaounyan.isthereanynetwork.service.telephony.Network(telephonyManager);
 
         val gpsTracker = GPSTracker(context);
-        Toast.makeText(context, "Miaou!", Toast.LENGTH_LONG).show();
         context?.let {// null check, unneeded since above telephonyManager does it already
             network.once(it) {
                 // after this synchronous call, telephonyManager doesn't listen anymore

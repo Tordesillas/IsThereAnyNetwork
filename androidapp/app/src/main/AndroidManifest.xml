@@ -26,6 +26,7 @@
         </activity>
         <activity android:name=".controller.MapActivity" />
         <receiver android:name=".service.background.AlarmReceiver"></receiver>
+        <service android:name=".service.GPSTracker" />
     </application>
 
 </manifest>
