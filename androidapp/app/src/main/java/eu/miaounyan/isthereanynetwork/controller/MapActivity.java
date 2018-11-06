@@ -1,7 +1,7 @@
 package eu.miaounyan.isthereanynetwork.controller;
 
-import android.app.Activity;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.widget.GridView;
 
 import java.util.LinkedList;
@@ -11,7 +11,7 @@ import eu.miaounyan.isthereanynetwork.R;
 import eu.miaounyan.isthereanynetwork.model.SignalStrength;
 import eu.miaounyan.isthereanynetwork.view.MapAdapter;
 
-public class MapActivity extends Activity {
+public class MapActivity extends AppCompatActivity {
     private static final int NB_COLUMNS = 10;
     private static final int NB_ROWS = 10;
 

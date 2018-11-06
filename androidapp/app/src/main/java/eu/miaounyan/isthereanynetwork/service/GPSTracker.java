@@ -32,10 +32,10 @@ public class GPSTracker extends Service implements LocationListener {
 
     public GPSTracker(Context context) {
         this.mContext = context;
-        getLocation();
+        determineLocation();
     }
 
-    public Location getLocation() {
+    public void determineLocation() {
         try {
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
             isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -81,8 +81,6 @@ public class GPSTracker extends Service implements LocationListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return location;
     }
 
     public void stopUsingGPS() {
@@ -146,12 +144,12 @@ public class GPSTracker extends Service implements LocationListener {
 
     @Override
     public void onProviderDisabled(String provider) {
-        Toast.makeText(getBaseContext(), "Gps turned off", Toast.LENGTH_LONG).show();
+        Log.d(this.getClass().getName(), "Gps turned off");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Toast.makeText(getBaseContext(), "Gps turned on", Toast.LENGTH_LONG).show();
+        Log.d(this.getClass().getName(), "Gps turned on");
     }
 
     @Override

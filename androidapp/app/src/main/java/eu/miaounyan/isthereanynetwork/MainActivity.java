@@ -168,18 +168,32 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendNetworkState(Context context) {
-        Log.d(this.getClass().getName(), "Sending network state");
-        Toast.makeText(context, "Sending...", Toast.LENGTH_LONG).show();
-        isThereAnyNetworkService.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), network.getSignalStrength(), network.getOperator(), getCurrentTimeDate(), network.getType()))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(r -> {
-                    Log.d(this.getClass().getName(), "Sent network state");
-                    Toast.makeText(context, "Sent " + r.getSignalStrength(), Toast.LENGTH_LONG).show();
-                }, err -> {
-                    Log.e(this.getClass().getName(), "Error: " + err);
-                    Toast.makeText(context, "Error " + err.getMessage(), Toast.LENGTH_LONG).show();
-                });
+        if (checkDataConsistency()) {
+            Log.d(this.getClass().getName(), "Sending network state");
+            Toast.makeText(context, "Sending...", Toast.LENGTH_LONG).show();
+            isThereAnyNetworkService.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), network.getSignalStrength(), network.getOperator(), getCurrentTimeDate(), network.getType()))
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(r -> {
+                        Log.d(this.getClass().getName(), "Sent network state");
+                        Toast.makeText(context, "Sent " + r.getSignalStrength(), Toast.LENGTH_LONG).show();
+                    }, err -> {
+                        Log.e(this.getClass().getName(), "Error: " + err);
+                        Toast.makeText(context, "Error " + err.getMessage(), Toast.LENGTH_LONG).show();
+                    });
+        }
+        else {
+            Log.d(this.getClass().getName(), "Can't send network state, data are missing");
+            Toast.makeText(context, "Missing data, check connectivity", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private boolean checkDataConsistency() {
+        return (-180 <= gpsTracker.getLatitude() && gpsTracker.getLatitude() <= 180) &&
+                (-180 <= gpsTracker.getLongitude() && gpsTracker.getLongitude() <= 180) &&
+                (gpsTracker.getLatitude() != 0 && gpsTracker.getLongitude() != 0) &&
+                (-1000 <= network.getSignalStrength() && network.getSignalStrength() < 0) &&
+                (!"Unknown".equals(network.getType()));
     }
 
     private void startAlarm() {
@@ -263,7 +277,7 @@ public class MainActivity extends AppCompatActivity {
         networkInfo.setText(String.format("Network operator - %s \nNetwork type - %s", networkOperator, networkType));
         networkData.setText(network.getSignalStrength() + " dBm\n\nSignal Level: " + network.getSignalLevel());
 
-        gpsTracker.getLocation();
+        gpsTracker.determineLocation();
         locationData.setText(String.format("Lat: %.3f\nLon: %.3f", gpsTracker.getLatitude(), gpsTracker.getLongitude()));
     }
 }
