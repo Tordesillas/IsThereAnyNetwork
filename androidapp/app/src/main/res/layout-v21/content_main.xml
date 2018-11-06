@@ -13,7 +13,9 @@
         android:id="@+id/main_content_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:divider="@drawable/divider"
+        android:orientation="vertical"
+        android:showDividers="middle">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -62,6 +64,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:elevation="16dp"
                     android:text="@string/scan_now"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:textColor="@color/colorAccent" />

@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">IsThereAnyNetwork</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Main View -->
+    <string name="scan_now">Scan now</string>
+    <string name="send">Send</string>
+
+    <!-- Sensor View -->
+    <string name="sensor_title">Title</string>
+    <string name="antenna_icon">Antenna icon</string>
+    <string name="useful_information">Useful information</string>
+    <string name="no_data">Measure (No Data)</string>
 </resources>

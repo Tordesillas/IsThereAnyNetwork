@@ -5,12 +5,12 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 
 class IsThereAnyNetwork {
-    fun connect() : IsThereAnyNetworkService {
+    fun connect(): IsThereAnyNetworkService {
         val retrofit = Retrofit.Builder()
                 .baseUrl("https://isthereanynetwork.miaounyan.eu/")
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(MoshiConverterFactory.create())
-                .build();
+                .build()
         return retrofit.create(IsThereAnyNetworkService::class.java)
     }
 }

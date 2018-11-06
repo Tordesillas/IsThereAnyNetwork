@@ -181,8 +181,7 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(this.getClass().getName(), "Error: " + err);
                         Toast.makeText(context, "Error " + err.getMessage(), Toast.LENGTH_LONG).show();
                     });
-        }
-        else {
+        } else {
             Log.d(this.getClass().getName(), "Can't send network state, data are missing");
             Toast.makeText(context, "Missing data, check connectivity", Toast.LENGTH_LONG).show();
         }

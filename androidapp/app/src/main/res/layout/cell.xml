@@ -9,7 +9,7 @@
         android:id="@+id/cell"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        app:layout_constraintDimensionRatio="1:1"
-        android:orientation="horizontal" />
+        android:orientation="horizontal"
+        app:layout_constraintDimensionRatio="1:1" />
 
 </android.support.constraint.ConstraintLayout>

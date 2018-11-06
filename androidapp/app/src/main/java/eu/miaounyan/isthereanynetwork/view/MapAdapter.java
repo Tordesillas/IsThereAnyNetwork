@@ -12,7 +12,7 @@ import java.util.List;
 import eu.miaounyan.isthereanynetwork.R;
 
 public class MapAdapter extends ArrayAdapter<Integer> {
-    public MapAdapter(Context context, List<Integer> colors){
+    public MapAdapter(Context context, List<Integer> colors) {
         super(context, 0, colors);
     }
 
