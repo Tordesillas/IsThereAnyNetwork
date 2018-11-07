@@ -11,4 +11,7 @@ interface IsThereAnyNetworkService {
 
     @POST("networkstate")
     fun sendNetworkState(@Body networkState: NetworkState): Observable<NetworkState>
+
+    @GET("networkstate/average")
+    fun getOperatorRanking(): Observable<Map<String, Double>>
 }
