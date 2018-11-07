@@ -6,7 +6,18 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
+        <item name="preferenceTheme">@style/AppPreferenceTheme</item>
     </style>
+
+    <style name="AppPreferenceTheme" parent="@style/PreferenceThemeOverlay.v14.Material">
+        <item name="preferenceCategoryStyle">@style/FixForPreferenceCategoryStyle</item>
+    </style>
+
+    <style name="FixForPreferenceCategoryStyle" parent="@style/Preference.Category.Material">
+        <item name="android:layout">@layout/_preference_category_material</item>
+    </style>
+
+    <color name="_preference_fallback_accent_color">@color/colorAccent</color>
 
     <style name="AppTheme.NoActionBar">
         <item name="coordinatorLayoutStyle">@style/Widget.Support.CoordinatorLayout</item>

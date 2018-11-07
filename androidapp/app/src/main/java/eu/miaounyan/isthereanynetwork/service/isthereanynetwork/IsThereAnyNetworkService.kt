@@ -7,8 +7,8 @@ import retrofit2.http.POST
 
 interface IsThereAnyNetworkService {
     @GET("networkstate")
-    fun getNetworkStates() : Observable<List<NetworkState>>
+    fun getNetworkStates(): Observable<List<NetworkState>>
 
     @POST("networkstate")
-    fun sendNetworkState(@Body networkState: NetworkState) : Observable<NetworkState>
+    fun sendNetworkState(@Body networkState: NetworkState): Observable<NetworkState>
 }

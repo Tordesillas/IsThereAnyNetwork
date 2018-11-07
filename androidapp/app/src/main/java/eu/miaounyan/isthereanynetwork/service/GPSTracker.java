@@ -3,7 +3,6 @@ package eu.miaounyan.isthereanynetwork.service;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.location.Location;
 import android.location.LocationListener;
@@ -15,7 +14,6 @@ import android.util.Log;
 import android.widget.Toast;
 
 public class GPSTracker extends Service implements LocationListener {
-
     private final Context mContext;
     private boolean isGPSEnabled = false;
     private boolean isNetworkEnabled = false;
@@ -34,10 +32,10 @@ public class GPSTracker extends Service implements LocationListener {
 
     public GPSTracker(Context context) {
         this.mContext = context;
-        getLocation();
+        determineLocation();
     }
 
-    public Location getLocation() {
+    public void determineLocation() {
         try {
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
             isGPSEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER);
@@ -83,8 +81,6 @@ public class GPSTracker extends Service implements LocationListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        return location;
     }
 
     public void stopUsingGPS() {
@@ -98,7 +94,6 @@ public class GPSTracker extends Service implements LocationListener {
             latitude = location.getLatitude();
         }
 
-        // return latitude
         return latitude;
     }
 
@@ -107,7 +102,6 @@ public class GPSTracker extends Service implements LocationListener {
             longitude = location.getLongitude();
         }
 
-        // return longitude
         return longitude;
     }
 
@@ -117,7 +111,7 @@ public class GPSTracker extends Service implements LocationListener {
 
     /**
      * Shows settings alert dialog
-     * On pressing Settings button will lauch Settings Options
+     * On pressing Settings button will launch Settings Options
      */
     public void showSettingsAlert() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
@@ -129,19 +123,13 @@ public class GPSTracker extends Service implements LocationListener {
         alertDialog.setMessage("GPS is not enabled. Do you want to go to settings menu?");
 
         // On pressing Settings button
-        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                mContext.startActivity(intent);
-            }
+        alertDialog.setPositiveButton("Settings", (dialog, which) -> {
+            Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            mContext.startActivity(intent);
         });
 
         // on pressing cancel button
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
+        alertDialog.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
 
         // Showing Alert Message
         alertDialog.show();
@@ -156,12 +144,12 @@ public class GPSTracker extends Service implements LocationListener {
 
     @Override
     public void onProviderDisabled(String provider) {
-        Toast.makeText(getBaseContext(), "Gps turned off", Toast.LENGTH_LONG).show();
+        Log.d(this.getClass().getName(), "Gps turned off");
     }
 
     @Override
     public void onProviderEnabled(String provider) {
-        Toast.makeText(getBaseContext(), "Gps turned on", Toast.LENGTH_LONG).show();
+        Log.d(this.getClass().getName(), "Gps turned on");
     }
 
     @Override
