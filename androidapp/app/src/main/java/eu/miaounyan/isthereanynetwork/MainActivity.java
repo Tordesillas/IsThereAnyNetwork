@@ -19,6 +19,8 @@ import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -101,6 +103,29 @@ public class MainActivity extends AppCompatActivity {
         locationOnCreate(inflater, parent);
         sendOnCreate();
         startAlarm();
+    }
+
+    // Menu
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+
+        switch (item.getItemId()) {
+            case R.id.menu_preferences:
+                // Load preferences activity.
+                //intent = new Intent(this, PreferencesActivity.class);
+                //startActivityForResult(intent, PreferencesActivity.REQUEST_PREFERENCE_SETTINGS);
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void networkOnCreate(LayoutInflater inflater, ViewGroup parent) {

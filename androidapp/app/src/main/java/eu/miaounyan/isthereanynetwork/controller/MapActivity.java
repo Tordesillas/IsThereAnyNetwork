@@ -1,7 +1,9 @@
 package eu.miaounyan.isthereanynetwork.controller;
 
 import android.os.Bundle;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MenuItem;
 import android.widget.GridView;
 
 import java.util.LinkedList;
@@ -53,5 +55,19 @@ public class MapActivity extends AppCompatActivity {
 
         MapAdapter ma = new MapAdapter(this, colors);
         grid.setAdapter(ma);
+
+        ActionBar ab = getSupportActionBar();
+        ab.setDisplayHomeAsUpEnabled(true);
+        ab.setHomeButtonEnabled(true);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

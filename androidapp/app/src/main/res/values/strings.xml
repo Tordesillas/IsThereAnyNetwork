@@ -11,4 +11,5 @@
     <string name="antenna_icon">Antenna icon</string>
     <string name="useful_information">Useful information</string>
     <string name="no_data">Measure (No Data)</string>
+    <string name="preferences_activity_title">Preferences</string>
 </resources>
