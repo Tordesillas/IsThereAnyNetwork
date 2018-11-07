@@ -61,7 +61,7 @@ class AlarmReceiver(val isThereAnyNetwork: IsThereAnyNetwork = IsThereAnyNetwork
         return (-180 <= gpsTracker.getLatitude() && gpsTracker.getLatitude() <= 180) &&
                 (-180 <= gpsTracker.getLongitude() && gpsTracker.getLongitude() <= 180) &&
                 (gpsTracker.getLatitude().toInt() != 0 && gpsTracker.getLongitude().toInt() != 0) &&
-                (-1000 <= network.signalStrength && network.signalStrength < 0) &&
+                (-150 <= network.signalStrength && network.signalStrength < -40) &&
                 (!"Unknown".equals(network.type))
     }
 }
