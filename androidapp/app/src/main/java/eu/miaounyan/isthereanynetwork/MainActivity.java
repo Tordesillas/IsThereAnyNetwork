@@ -107,7 +107,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Menu
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
@@ -217,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
         return (-180 <= gpsTracker.getLatitude() && gpsTracker.getLatitude() <= 180) &&
                 (-180 <= gpsTracker.getLongitude() && gpsTracker.getLongitude() <= 180) &&
                 (gpsTracker.getLatitude() != 0 && gpsTracker.getLongitude() != 0) &&
-                (-1000 <= network.getSignalStrength() && network.getSignalStrength() < 0) &&
+                (-150 <= network.getSignalStrength() && network.getSignalStrength() < -40) &&
                 (!"Unknown".equals(network.getType()));
     }
 

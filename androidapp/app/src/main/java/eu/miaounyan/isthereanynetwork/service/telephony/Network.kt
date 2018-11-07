@@ -68,9 +68,9 @@ class Network(private val telephonyManager: TelephonyManager) {
     }
 
     fun stop(context: Context) {
-        //FIXME: do we need checkPermissions here?
-        telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
-        Log.d(javaClass.name, "stop")
+        if (checkPermissions(context)) {
+            telephonyManager.listen(phoneStateListener, PhoneStateListener.LISTEN_NONE)
+        }
     }
 
     fun once(context: Context, callback: () -> Unit) {
