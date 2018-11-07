@@ -2,37 +2,12 @@ var express = require('express');
 var mongoose = require('mongoose');
 var router = express.Router();
 
+var researchparams = require('../middlewares/researchparams');
+
 router.route('/')
   /* GET network results listing. */
-  .get(function(req, res, next) {
-    var researchparams = {};
-    if (req.query.from)
-      researchparams.date = Object.assign(researchparams.date || {}, { '$gte': req.query.from });
-    if (req.query.to)
-      researchparams.date = Object.assign(researchparams.date || {}, { '$lte': req.query.to });
-
-    if (req.query.operatorName)
-      researchparams.operatorName = req.query.operatorName;
-
-    if (req.query.networkProtocol)
-      researchparams.networkProtocol = req.query.networkProtocol;
-
-    if (req.query.signalStrengthGreaterThan)
-      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$gte': parseFloat(req.query.signalStrengthGreaterThan) });
-    if (req.query.signalStrengthLowerThan)
-      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$lte': parseFloat(req.query.signalStrengthLowerThan) });
-
-    if (req.query.latitudeGreaterThan)
-      researchparams.latitude = Object.assign(researchparams.latitude || {}, { '$gte': parseFloat(req.query.latitudeGreaterThan) });
-    if (req.query.latitudeLowerThan)
-      researchparams.latitude = Object.assign(researchparams.latitude || {}, { '$lte': parseFloat(req.query.latitudeLowerThan) });
-
-    if (req.query.longitudeGreaterThan)
-      researchparams.longitude = Object.assign(researchparams.longitude || {}, { '$gte': parseFloat(req.query.longitudeGreaterThan) });
-    if (req.query.longitudeLowerThan)
-      researchparams.longitude = Object.assign(researchparams.longitude || {}, { '$lte': parseFloat(req.query.longitudeLowerThan) });
-
-    mongoose.model('networkstate').find(researchparams, function (err, networkstates) {
+  .get(researchparams, function(req, res, next) {
+    mongoose.model('networkstate').find(res.locals.researchparams, function (err, networkstates) {
       if (err) {
         res.status(500);
         res.send({error: err});
@@ -57,6 +32,30 @@ router.route('/')
     });
   });
 
+router.route('/average')
+  .get(researchparams, function(req, res, next) {
+    mongoose.model('networkstate').aggregate([{
+      $match: res.locals.researchparams
+    }]).group({
+      _id: '$operatorName',
+      avg: {
+        $avg: '$signalStrength'
+      }
+    }).exec(function (err, result) {
+      if (err) {
+        res.status(500);
+        res.send({error: err});
+        console.error(err);
+      } else {
+        var operatorAvg = {};
+        result.forEach(function(o) {
+          operatorAvg[o._id] = o.avg;
+        });
+        res.send(operatorAvg);
+      }
+    });
+  });
+
 router.route('/:id')
   /* GET single networkstate by id */
   .get(function(req, res, next) {
@@ -73,5 +72,7 @@ router.route('/:id')
       }
     });
   });
+
+
 
 module.exports = router;
