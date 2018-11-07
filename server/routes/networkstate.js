@@ -17,10 +17,20 @@ router.route('/')
     if (req.query.networkProtocol)
       researchparams.networkProtocol = req.query.networkProtocol;
 
-    if (req.query.signalStrengthLowerThan)
-      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$gte': parseFloat(req.query.signalStrengthLowerThan) });
     if (req.query.signalStrengthGreaterThan)
-      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$lte': parseFloat(req.query.signalStrengthGreaterThan) });
+      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$gte': parseFloat(req.query.signalStrengthGreaterThan) });
+    if (req.query.signalStrengthLowerThan)
+      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$lte': parseFloat(req.query.signalStrengthLowerThan) });
+
+    if (req.query.latitudeGreaterThan)
+      researchparams.latitude = Object.assign(researchparams.latitude || {}, { '$gte': parseFloat(req.query.latitudeGreaterThan) });
+    if (req.query.latitudeLowerThan)
+      researchparams.latitude = Object.assign(researchparams.latitude || {}, { '$lte': parseFloat(req.query.latitudeLowerThan) });
+
+    if (req.query.longitudeGreaterThan)
+      researchparams.longitude = Object.assign(researchparams.longitude || {}, { '$gte': parseFloat(req.query.longitudeGreaterThan) });
+    if (req.query.longitudeLowerThan)
+      researchparams.longitude = Object.assign(researchparams.longitude || {}, { '$lte': parseFloat(req.query.longitudeLowerThan) });
 
     mongoose.model('networkstate').find(researchparams, function (err, networkstates) {
       if (err) {
