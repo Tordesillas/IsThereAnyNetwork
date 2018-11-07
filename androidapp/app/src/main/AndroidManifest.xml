@@ -25,6 +25,18 @@
             </intent-filter>
         </activity>
         <activity android:name=".controller.MapActivity" />
+
+        <activity
+            android:name=".controller.PreferencesActivity"
+            android:label="@string/preferences_activity_title"
+            android:launchMode="singleInstance"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".MainActivity" />
+        </activity>
+
         <receiver android:name=".service.background.AlarmReceiver"></receiver>
         <service android:name=".service.GPSTracker" />
     </application>

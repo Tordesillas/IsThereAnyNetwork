@@ -39,6 +39,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import eu.miaounyan.isthereanynetwork.controller.MapActivity;
+import eu.miaounyan.isthereanynetwork.controller.PreferencesActivity;
 import eu.miaounyan.isthereanynetwork.service.GPSTracker;
 import eu.miaounyan.isthereanynetwork.service.PermissionManager;
 import eu.miaounyan.isthereanynetwork.service.background.AlarmReceiver;
@@ -120,8 +121,8 @@ public class MainActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.menu_preferences:
                 // Load preferences activity.
-                //intent = new Intent(this, PreferencesActivity.class);
-                //startActivityForResult(intent, PreferencesActivity.REQUEST_PREFERENCE_SETTINGS);
+                intent = new Intent(this, PreferencesActivity.class);
+                startActivityForResult(intent, PreferencesActivity.REQUEST_PREFERENCE);
                 break;
         }
 

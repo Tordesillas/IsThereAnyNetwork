@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:iconSpaceReserved="false">
+
+    <PreferenceCategory
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:key="alarm_receiver"
+        android:summary="@string/alarm_receiver_summary"
+        android:title="@string/alarm_receiver_title">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:key="main"
+            android:summary=""
+            android:title="@string/preference_alarm_receiver_title"
+            app:iconSpaceReserved="false" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

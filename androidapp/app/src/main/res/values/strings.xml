@@ -11,5 +11,10 @@
     <string name="antenna_icon">Antenna icon</string>
     <string name="useful_information">Useful information</string>
     <string name="no_data">Measure (No Data)</string>
+
+    <!-- Preference Activity -->
     <string name="preferences_activity_title">Preferences</string>
+    <string name="alarm_receiver_title">Alarm Receiver</string>
+    <string name="alarm_receiver_summary">Set preferences about automatic data sending</string>
+    <string name="preference_alarm_receiver_title">Enable</string>
 </resources>
