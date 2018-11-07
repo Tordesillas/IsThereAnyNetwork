@@ -34,7 +34,26 @@ router.route('/')
 
 router.route('/average')
   .get(researchparams, function(req, res, next) {
-    res.status(404);
+    mongoose.model('networkstate').aggregate([{
+      $match: res.locals.researchparams
+    }]).group({
+      _id: '$operatorName',
+      avg: {
+        $avg: '$signalStrength'
+      }
+    }).exec(function (err, result) {
+      if (err) {
+        res.status(500);
+        res.send({error: err});
+        console.error(err);
+      } else {
+        var operatorAvg = {};
+        result.forEach(function(o) {
+          operatorAvg[o._id] = o.avg;
+        });
+        res.send(operatorAvg);
+      }
+    });
   });
 
 router.route('/:id')
