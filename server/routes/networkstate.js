@@ -18,9 +18,9 @@ router.route('/')
       researchparams.networkProtocol = req.query.networkProtocol;
 
     if (req.query.signalStrengthLowerThan)
-      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$gte': req.query.signalStrengthLowerThan });
+      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$gte': parseFloat(req.query.signalStrengthLowerThan) });
     if (req.query.signalStrengthGreaterThan)
-      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$lte': req.query.signalStrengthGreaterThan });
+      researchparams.signalStrength = Object.assign(researchparams.signalStrength || {}, { '$lte': parseFloat(req.query.signalStrengthGreaterThan) });
 
     mongoose.model('networkstate').find(researchparams, function (err, networkstates) {
       if (err) {
