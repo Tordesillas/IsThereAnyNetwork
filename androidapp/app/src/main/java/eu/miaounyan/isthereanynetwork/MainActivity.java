@@ -40,6 +40,7 @@ import java.util.TimeZone;
 
 import eu.miaounyan.isthereanynetwork.controller.MapActivity;
 import eu.miaounyan.isthereanynetwork.controller.PreferencesActivity;
+import eu.miaounyan.isthereanynetwork.service.DateFormatter;
 import eu.miaounyan.isthereanynetwork.service.GPSTracker;
 import eu.miaounyan.isthereanynetwork.service.PermissionManager;
 import eu.miaounyan.isthereanynetwork.service.background.AlarmReceiver;
@@ -74,6 +75,7 @@ public class MainActivity extends AppCompatActivity {
     /* Send */
     private IsThereAnyNetwork isThereAnyNetwork;
     private IsThereAnyNetworkService isThereAnyNetworkService;
+    private DateFormatter dateFormatter;
 
     private Network network;
     private PermissionManager permissionManager;
@@ -180,12 +182,11 @@ public class MainActivity extends AppCompatActivity {
 
     private String getCurrentTimeDate() {
         Date now = new Date();
-        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US);
-        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-        return dateFormat.format(now);
+        return dateFormatter.toISO8601String(now);
     }
 
     private void sendOnCreate() {
+        dateFormatter = new DateFormatter();
         isThereAnyNetwork = new IsThereAnyNetwork();
         isThereAnyNetworkService = isThereAnyNetwork.connect();
 

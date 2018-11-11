@@ -1,17 +1,15 @@
 package eu.miaounyan.isthereanynetwork.service.isthereanynetwork
 
 import io.reactivex.Observable
-import retrofit2.http.Body
-import retrofit2.http.GET
-import retrofit2.http.POST
+import retrofit2.http.*
 
 interface IsThereAnyNetworkService {
     @GET("networkstate")
-    fun getNetworkStates(): Observable<List<NetworkState>>
+    fun getNetworkStates(@QueryMap options : IsThereAnyNetworkParams): Observable<List<NetworkState>>
 
     @POST("networkstate")
     fun sendNetworkState(@Body networkState: NetworkState): Observable<NetworkState>
 
     @GET("networkstate/average")
-    fun getOperatorRanking(): Observable<Map<String, Double>>
+    fun getOperatorRanking(@QueryMap options : IsThereAnyNetworkParams): Observable<Map<String, Double>>
 }

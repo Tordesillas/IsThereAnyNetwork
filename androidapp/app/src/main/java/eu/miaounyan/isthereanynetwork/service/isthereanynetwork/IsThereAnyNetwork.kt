@@ -13,4 +13,14 @@ class IsThereAnyNetwork {
                 .build()
         return retrofit.create(IsThereAnyNetworkService::class.java)
     }
+
+    fun createParams() : IsThereAnyNetworkParams {
+        return IsThereAnyNetworkParams(mutableMapOf());
+    }
+
+    fun defaultParams() : IsThereAnyNetworkParams {
+        return createParams()
+                .withSignalStrengthLowerThan(-45)
+                .withSignalStrengthGreaterThan(-145)
+    }
 }

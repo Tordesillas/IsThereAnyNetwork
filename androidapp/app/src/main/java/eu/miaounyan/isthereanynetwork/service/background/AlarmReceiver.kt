@@ -6,6 +6,7 @@ import android.content.Intent
 import android.telephony.TelephonyManager
 import android.util.Log
 import android.widget.Toast
+import eu.miaounyan.isthereanynetwork.service.DateFormatter
 import eu.miaounyan.isthereanynetwork.service.GPSTracker
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetwork
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetworkService
@@ -18,12 +19,11 @@ import java.util.*
 
 class AlarmReceiver(val isThereAnyNetwork: IsThereAnyNetwork = IsThereAnyNetwork(),
                     val isThereAnyNetworkService: IsThereAnyNetworkService = isThereAnyNetwork.connect()) : BroadcastReceiver() {
+    private val dateFormatter = DateFormatter();
 
     private fun getCurrentTimeDate(): String {
         val now = Date()
-        val dateFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-        dateFormat.timeZone = TimeZone.getTimeZone("UTC")
-        return dateFormat.format(now)
+        return dateFormatter.toISO8601String(now)
     }
 
     override fun onReceive(context: Context?, intent: Intent?) {

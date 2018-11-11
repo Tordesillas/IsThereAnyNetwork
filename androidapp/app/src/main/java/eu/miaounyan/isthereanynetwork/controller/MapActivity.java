@@ -79,7 +79,7 @@ public class MapActivity extends AppCompatActivity {
         IsThereAnyNetworkService isThereAnyNetworkService = isThereAnyNetwork.connect();
 
         /* Operator ranking */
-        isThereAnyNetworkService.getOperatorRanking()
+        isThereAnyNetworkService.getOperatorRanking(isThereAnyNetwork.defaultParams())
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Map<String, Double>>() {
