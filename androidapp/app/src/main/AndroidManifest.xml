@@ -3,9 +3,10 @@
     package="eu.miaounyan.isthereanynetwork">
 
     <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -16,11 +17,13 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
+            android:configChanges="keyboardHidden|orientation"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <action android:name="android.intent.action.MANAGE_NETWORK_USAGE" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -37,8 +40,10 @@
                 android:value=".MainActivity" />
         </activity>
 
-        <receiver android:name=".service.background.AlarmReceiver"></receiver>
-        <service android:name=".service.GPSTracker" />
+        <receiver android:name=".service.background.AlarmReceiver" />
+        <receiver android:name=".service.background.AlarmReceiverCache" />
+
+        <service android:name=".service.location.GPSTracker" />
     </application>
 
 </manifest>
