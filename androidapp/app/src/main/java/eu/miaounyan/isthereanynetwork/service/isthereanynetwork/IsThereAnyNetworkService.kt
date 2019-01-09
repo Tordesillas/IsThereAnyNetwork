@@ -12,4 +12,7 @@ interface IsThereAnyNetworkService {
 
     @GET("networkstate/average")
     fun getOperatorRanking(@QueryMap options : IsThereAnyNetworkParams): Observable<Map<String, Double>>
+
+    @GET("networkmap")
+    fun getNetworkMap(@QueryMap options : IsThereAnyNetworkParams): Observable<List<Int>>
 }

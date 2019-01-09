@@ -1,9 +1,11 @@
 package eu.miaounyan.isthereanynetwork.model;
 
 public enum SignalStrength {
-    LOW(0x40ff3d00),
-    MEDIUM(0x40fbc02d),
-    HIGH(0x4076FF03);
+    BAD(0x40FF0000),
+    BAD_AVERAGE(0x40FFFF00),
+    AVERAGE(0x40FFFF00),
+    AVERAGE_GOOD(0x407FFF00),
+    GOOD(0x4000FF00);
 
     private final int color;
 
