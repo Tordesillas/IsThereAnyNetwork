@@ -6,7 +6,7 @@ router.route('/')
   /* GET network results listing. */
   .get(function(req, res, next) {
     const l = 5; // number of levels
-    const resolution = 100; // number of columns and rows
+    const resolution = 10; // number of columns and rows
 
     let levelArray = [];
     for (var i = 0; i < resolution; i++) { // rows
