@@ -55,4 +55,9 @@ class IsThereAnyNetworkParams(val params: MutableMap<String, String>) : MutableM
         params["longitudeLowerThan"] = v.toString();
         return this;
     }
+
+    fun withTargetHour(v : Int) : IsThereAnyNetworkParams {
+        params["targetHour"] = v.toString();
+        return this;
+    }
 }

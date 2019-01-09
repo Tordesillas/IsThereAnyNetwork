@@ -1,6 +1,7 @@
 package eu.miaounyan.isthereanynetwork.model;
 
 public enum SignalStrength {
+    TRANSPARENT(0x00FFFFFF),
     BAD(0x40FF0000),
     BAD_AVERAGE(0x40FFFF00),
     AVERAGE(0x40FFFF00),
