@@ -16,14 +16,14 @@ router.route('/')
   /* GET network results listing. */
   .get(researchparams, function(req, res, next) {
     const l = 6; // max level, 0 is reserved to missing or invalid info
-    const resolution = 10; // number of columns and rows
+    const resolution = 32; // number of columns and rows
     const minX = res.locals.researchparams.longitude['$gte'];
     const minY = res.locals.researchparams.latitude['$gte'];
     const maxX = res.locals.researchparams.longitude['$lte'];
     const maxY = res.locals.researchparams.latitude['$lte'];
 
-    console.log(minX, minY, maxX, maxY);
-    console.log(res.locals.researchparams);
+    //console.log(minX, minY, maxX, maxY);
+    //console.log(res.locals.researchparams);
 
     mongoose.model('networkstate').find(res.locals.researchparams, function (err, networkstates) {
       if (err) {
@@ -41,7 +41,7 @@ router.route('/')
 
         networkstates.forEach(networkstate => {
           const x = Math.floor(networkstate.longitude.map(minX, maxX, 0, resolution));
-          const y = Math.floor(networkstate.latitude.map(minY, maxY, 0, resolution));
+          const y = resolution - Math.floor(networkstate.latitude.map(minY, maxY, 0, resolution)); // reverse y axis since latitude increases going north
 
           if (networkstate.signalStrength < signalMax && networkstate.signalStrength > signalMin) { // filter out invalid values
             signalsArray[y][x].push(Math.floor(Math.abs(networkstate.signalStrength))); // absolute value for subsequent operations
@@ -89,20 +89,24 @@ router.route('/')
             if (computedValues.length < 1) { // no value could be computed
               filteredArray[i][j] = 0;
             } else {
-              const factor = computedFactors.reduce((a,b) => a + b, 0) / computedFactors.length;
+              const factor = computedFactors.reduce((a,b) => a + b, 0);
               const finalValue = computedValues.reduce((a,b) => a + b, 0) / factor;
-              console.log(finalValue, computedValues.length);
+              //console.log(finalValue, computedValues.length);
               filteredArray[i][j] = finalValue;
             }
           }
         }
 
-        console.log(filteredArray);
+        //console.log("filteredArray");
+        //console.log(filteredArray);
         const flatArray = filteredArray.flatMap(t => t);
-        console.log(flatArray);
+        //console.log("flatArray");
+        //console.log(flatArray);
 
         // Filters
         levelArray = flatArray.map(s => s == 0 ? 0 : Math.floor(s.map(-signalMin, -signalMax, 1, l))); // we've taken absolute value before so use positive max and min
+        //console.log("levelArray");
+        //console.log(levelArray);
         res.send(levelArray);
       }
     });
