@@ -81,6 +81,11 @@ public class MapActivity extends AppCompatActivity {
         List<Integer> colors = new LinkedList<>();
 
         for (int networkNumber : networkMap) {
+            if (networkNumber < 0 || networkNumber >= SignalStrength.values().length) {
+                // out of range
+                Log.e(this.getClass().getName(), "networkNumber out of range: " + networkNumber);
+                continue;
+            }
             colors.add(SignalStrength.values()[networkNumber].getColor());
         }
 
