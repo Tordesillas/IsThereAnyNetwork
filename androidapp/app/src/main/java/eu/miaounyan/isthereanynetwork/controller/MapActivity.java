@@ -1,6 +1,7 @@
 package eu.miaounyan.isthereanynetwork.controller;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -34,6 +35,7 @@ public class MapActivity extends AppCompatActivity {
     private IsThereAnyNetwork isThereAnyNetwork;
     private IsThereAnyNetworkService isThereAnyNetworkService;
     private com.shawnlin.numberpicker.NumberPicker picker;
+    private Handler handler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,11 +58,8 @@ public class MapActivity extends AppCompatActivity {
         getOperatorsFromNetwork();
 
         /* Picker */
-        picker = findViewById(R.id.picker);
-        picker.setOnValueChangedListener((numPicker, oldVal, newVal) -> getMapFromNetwork());
-        picker.setMinValue(-1);
-        picker.setMaxValue(23);
-        picker.setValue(-1);
+        createHourPicker();
+        handler = new Handler();
     }
 
     private void loadOperators(Map<String, Double> operatorMap) {
@@ -93,7 +92,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void getMapFromNetwork() {
-        isThereAnyNetworkService.getNetworkMap(getRequestParameters(isThereAnyNetwork))
+        isThereAnyNetworkService.getNetworkMap(getMapRequestParameters(isThereAnyNetwork))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<List<Integer>>() {
@@ -124,7 +123,7 @@ public class MapActivity extends AppCompatActivity {
     }
 
     private void getOperatorsFromNetwork() {
-        isThereAnyNetworkService.getOperatorRanking(isThereAnyNetwork.defaultParams())
+        isThereAnyNetworkService.getOperatorRanking(getRankingRequestParameters(isThereAnyNetwork))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new Observer<Map<String, Double>>() {
@@ -146,6 +145,18 @@ public class MapActivity extends AppCompatActivity {
                 });
     }
 
+    private void createHourPicker() {
+        picker = findViewById(R.id.picker);
+        picker.setMinValue(-1);
+        picker.setMaxValue(23);
+        picker.setValue(-1);
+
+        picker.setOnValueChangedListener((picker, oldVal, newVal) -> {
+            handler.removeCallbacksAndMessages(null);
+            handler.postDelayed(this::getMapFromNetwork, 1000);
+        });
+    }
+
     public void onOperatorClicked(View view) {
         if (((RadioButton) view).isChecked()) {
             switch(view.getId()) {
@@ -164,7 +175,7 @@ public class MapActivity extends AppCompatActivity {
         }
     }
 
-    public IsThereAnyNetworkParams getRequestParameters(IsThereAnyNetwork isThereAnyNetwork) {
+    private IsThereAnyNetworkParams getMapRequestParameters(IsThereAnyNetwork isThereAnyNetwork) {
         IsThereAnyNetworkParams params = isThereAnyNetwork.createParams()
                 .withLatitudeGreaterThan(43.595810)
                 .withLongitudeGreaterThan(7.032711)
@@ -179,6 +190,16 @@ public class MapActivity extends AppCompatActivity {
         }
 
         return params;
+    }
+
+    private IsThereAnyNetworkParams getRankingRequestParameters(IsThereAnyNetwork isThereAnyNetwork) {
+        return isThereAnyNetwork.createParams()
+                .withLatitudeGreaterThan(43.595810)
+                .withLongitudeGreaterThan(7.032711)
+                .withLatitudeLowerThan(43.635890)
+                .withLongitudeLowerThan(7.087802)
+                .withSignalStrengthLowerThan(-45)
+                .withSignalStrengthGreaterThan(-145);
     }
 
     @Override
