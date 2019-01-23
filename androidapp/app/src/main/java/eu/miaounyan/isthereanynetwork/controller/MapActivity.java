@@ -180,4 +180,10 @@ public class MapActivity extends AppCompatActivity {
 
         return params;
     }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        finish();
+        return true;
+    }
 }
