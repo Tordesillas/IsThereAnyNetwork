@@ -24,8 +24,14 @@ router.route('/')
 
     //console.log(minX, minY, maxX, maxY);
     //console.log(res.locals.researchparams);
+    var model = mongoose.model('networkstate');
+    if (req.query.targetHour) {
+      model = model.aggregate([{ $match: res.locals.researchparams }, res.locals.targetHour.redact]);
+    } else {
+      model = model.fing(res.locals.researchparams);  
+    }
 
-    mongoose.model('networkstate').find(res.locals.researchparams, function (err, networkstates) {
+    model.exec(function (err, networkstates) {
       if (err) {
         res.status(500);
         res.send({error: err});
