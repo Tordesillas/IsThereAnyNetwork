@@ -7,15 +7,27 @@ var researchparams = require('../middlewares/researchparams');
 router.route('/')
   /* GET network results listing. */
   .get(researchparams, function(req, res, next) {
-    mongoose.model('networkstate').find(res.locals.researchparams, function (err, networkstates) {
-      if (err) {
-        res.status(500);
-        res.send({error: err});
-        console.error(err);
-      } else {
-        res.send(networkstates);
-      }
-    });
+    if (req.query.targetHour) {
+      mongoose.model('networkstate').aggregate([{ $match: res.locals.researchparams }, res.locals.targetHour.redact]).exec(function(err, networkstates) {
+        if (err) {
+          res.status(500);
+          res.send({error: err});
+          console.error(err);
+        } else {
+          res.send(networkstates);
+        }
+      });
+    } else {
+      mongoose.model('networkstate').find(res.locals.researchparams, function (err, networkstates) {
+        if (err) {
+          res.status(500);
+          res.send({error: err});
+          console.error(err);
+        } else {
+          res.send(networkstates);
+        }
+      });
+    }
   })
   /* POST new network result */
   .post(function(req, res, next) {
