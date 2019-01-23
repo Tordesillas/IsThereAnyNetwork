@@ -4,10 +4,11 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.GridView;
-import android.widget.ListView;
 import android.widget.RadioButton;
 
 import java.util.ArrayList;
@@ -72,8 +73,12 @@ public class MapActivity extends AppCompatActivity {
 
     private void createListOperators() {
         operators = new ArrayList<>();
-        rankingAdapter = new RankingListAdapter(this, operators);
-        ((ListView) findViewById(R.id.ranking)).setAdapter(rankingAdapter);
+
+        RecyclerView recyclerView = findViewById(R.id.ranking);
+        final LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplicationContext(), LinearLayoutManager.HORIZONTAL, false);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        rankingAdapter = new RankingListAdapter(operators);
+        recyclerView.setAdapter(rankingAdapter);
     }
 
     private void loadMap(List<Integer> networkMap) {
@@ -159,7 +164,7 @@ public class MapActivity extends AppCompatActivity {
 
     public void onOperatorClicked(View view) {
         if (((RadioButton) view).isChecked()) {
-            switch(view.getId()) {
+            switch (view.getId()) {
                 case R.id.operator_bouygues:
                     operatorFilter = "Bouygues Telecom"; break;
                 case R.id.operator_orange:
