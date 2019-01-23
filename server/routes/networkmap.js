@@ -28,7 +28,7 @@ router.route('/')
     if (req.query.targetHour) {
       model = model.aggregate([{ $match: res.locals.researchparams }, res.locals.targetHour.redact]);
     } else {
-      model = model.fing(res.locals.researchparams);  
+      model = model.find(res.locals.researchparams);  
     }
 
     model.exec(function (err, networkstates) {
