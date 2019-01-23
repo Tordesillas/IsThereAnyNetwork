@@ -53,7 +53,8 @@ router.route('/average')
       avg: {
         $avg: '$signalStrength'
       }
-    }).exec(function (err, result) {
+    }).sort('-avg')
+    .exec(function (err, result) {
       if (err) {
         res.status(500);
         res.send({error: err});
