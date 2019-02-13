@@ -30,8 +30,10 @@ import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 
 public class MapActivity extends AppCompatActivity {
+    private List<Integer> colors;
     private List<RankItem> operators;
     private RankingListAdapter rankingAdapter;
+    private MapAdapter mapAdapter;
     private String operatorFilter = "none";
     private IsThereAnyNetwork isThereAnyNetwork;
     private IsThereAnyNetworkService isThereAnyNetworkService;
@@ -93,7 +95,7 @@ public class MapActivity extends AppCompatActivity {
             colors.add(SignalStrength.values()[networkNumber].getColor());
         }
 
-        createGrid(colors);
+        drawGrid(colors);
     }
 
     private void getMapFromNetwork() {
@@ -119,12 +121,22 @@ public class MapActivity extends AppCompatActivity {
                 });
     }
 
-    private void createGrid(List<Integer> colors) {
-        GridView grid = findViewById(R.id.grid);
-        grid.setNumColumns((int)Math.sqrt(colors.size()));
+    private void drawGrid(List<Integer> colors) {
+        if (this.colors == null || this.colors.isEmpty()) {
+            // Create grid
+            GridView grid = findViewById(R.id.grid);
+            grid.setNumColumns((int)Math.sqrt(colors.size()));
 
-        MapAdapter ma = new MapAdapter(this, colors);
-        grid.setAdapter(ma);
+            this.colors = colors;
+
+            mapAdapter = new MapAdapter(this, this.colors);
+            grid.setAdapter(mapAdapter);
+        } else {
+            // Update grid
+            this.colors.clear();
+            this.colors.addAll(colors);
+            mapAdapter.notifyDataSetChanged();
+        }
     }
 
     private void getOperatorsFromNetwork() {
@@ -137,6 +149,7 @@ public class MapActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(Map<String, Double> stringIntegerMap) {
+                        stringIntegerMap.remove("Android");
                         loadOperators(stringIntegerMap);
                     }
 
@@ -190,7 +203,6 @@ public class MapActivity extends AppCompatActivity {
             params.withOperatorName(operatorFilter);
         }
         if (picker != null && picker.getValue() != -1) {
-            Log.d("UNICORN", picker.getValue()+"");
             params.withTargetHour(picker.getValue());
         }
 
