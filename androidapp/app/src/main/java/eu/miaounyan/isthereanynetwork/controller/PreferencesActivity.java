@@ -21,7 +21,8 @@ public class PreferencesActivity extends AppCompatActivity {
         ab.setHomeButtonEnabled(true);
         setTitle("Preferences");
 
-        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, new PreferenceFragment()).commit();
+        PreferenceFragment fragment = PreferenceFragment.newInstance();
+        getSupportFragmentManager().beginTransaction().replace(R.id.content_frame, fragment).commit();
     }
 
     @Override

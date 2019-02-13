@@ -13,10 +13,24 @@
         android:title="@string/alarm_receiver_title">
         <SwitchPreference
             android:defaultValue="true"
-            android:key="main"
+            android:key="alarm_receiver_enable"
             android:summary=""
             android:title="@string/preference_alarm_receiver_title"
             app:iconSpaceReserved="false" />
+        <EditTextPreference
+            android:defaultValue="5"
+            android:dependency="alarm_receiver_enable"
+            android:inputType="numberDecimal"
+            android:key="alarm_receiver_interval"
+            android:numeric="decimal"
+            android:summary="@string/alarm_receiver_interval_summary"
+            android:title="@string/alarm_receiver_interval_title" />
+        <SwitchPreference
+            android:defaultValue="true"
+            android:dependency="alarm_receiver_enable"
+            android:key="alarm_receiver_cache"
+            android:summary="@string/alarm_receiver_cache_summary"
+            android:title="@string/alarm_receiver_cache_title" />
     </PreferenceCategory>
 
 </PreferenceScreen>

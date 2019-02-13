@@ -1,10 +1,10 @@
 package eu.miaounyan.isthereanynetwork.view;
 
-import android.content.Context;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.List;
@@ -12,23 +12,54 @@ import java.util.List;
 import eu.miaounyan.isthereanynetwork.R;
 import eu.miaounyan.isthereanynetwork.model.RankItem;
 
-public class RankingListAdapter extends ArrayAdapter<RankItem> {
-    public RankingListAdapter(Context context, List<RankItem> items) {
-        super(context, 0, items);
+public class RankingListAdapter extends RecyclerView.Adapter<RankingListAdapter.ViewHolder> {
+    private List<RankItem> rankItems;
+
+    public RankingListAdapter(List<RankItem> myList) {
+        this.rankItems = myList;
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (convertView == null) {
-            convertView = inflater.inflate(R.layout.rank_item, null);
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.rank_item, parent, false);
+        return new ViewHolder(view);
+    }
+
+    @Override
+    public void onBindViewHolder(ViewHolder holder, int position) {
+        holder.operatorName.setText(rankItems.get(position).getOperatorName());
+        holder.signalStrength.setText(Math.round(rankItems.get(position).getSignalStrength())+"");
+        setOperatorPicture(holder.operatorPic, rankItems.get(position).getOperatorName());
+    }
+
+    private void setOperatorPicture(ImageView image, String operatorName) {
+        switch (operatorName) {
+            case "Bouygues Telecom":
+                image.setImageResource(R.drawable.bouygues); break;
+            case "Orange F":
+                image.setImageResource(R.drawable.orange); break;
+            case "Free":
+                image.setImageResource(R.drawable.free); break;
+            case "F SFR":
+                image.setImageResource(R.drawable.sfr); break;
         }
+    }
 
-        RankItem item = getItem(position);
+    @Override
+    public int getItemCount() {
+        return rankItems.size();
+    }
 
-        ((TextView) convertView.findViewById(R.id.operatorName)).setText(item.getOperatorName());
-        ((TextView) convertView.findViewById(R.id.signalStrength)).setText(item.getSignalStrength()+"");
+    static class ViewHolder extends RecyclerView.ViewHolder {
+        TextView operatorName;
+        TextView signalStrength;
+        ImageView operatorPic;
 
-        return convertView;
+        ViewHolder(View itemView) {
+            super(itemView);
+            operatorName = itemView.findViewById(R.id.operatorName);
+            signalStrength = itemView.findViewById(R.id.signalStrength);
+            operatorPic = itemView.findViewById(R.id.operatorPic);
+        }
     }
 }

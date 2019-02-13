@@ -2,9 +2,9 @@ package eu.miaounyan.isthereanynetwork;
 
 import android.Manifest;
 import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
@@ -15,6 +15,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.preference.PreferenceManager;
 import android.support.v7.widget.Toolbar;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -32,24 +33,27 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.TimeZone;
-
 import eu.miaounyan.isthereanynetwork.controller.MapActivity;
 import eu.miaounyan.isthereanynetwork.controller.PreferencesActivity;
-import eu.miaounyan.isthereanynetwork.service.DateFormatter;
-import eu.miaounyan.isthereanynetwork.service.GPSTracker;
 import eu.miaounyan.isthereanynetwork.service.PermissionManager;
-import eu.miaounyan.isthereanynetwork.service.background.AlarmReceiver;
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetwork;
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetworkService;
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.NetworkState;
+import eu.miaounyan.isthereanynetwork.service.location.GPSTracker;
 import eu.miaounyan.isthereanynetwork.service.telephony.Network;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+
+import static eu.miaounyan.isthereanynetwork.utils.DataUtilities.checkDataConsistency;
+import static eu.miaounyan.isthereanynetwork.utils.DataUtilities.getCurrentTimeDate;
+import static eu.miaounyan.isthereanynetwork.utils.PreferencesUtilities.KEY_PREF_ALARM_RECEIVER;
+import static eu.miaounyan.isthereanynetwork.utils.PreferencesUtilities.KEY_PREF_ALARM_RECEIVER_CACHE;
+import static eu.miaounyan.isthereanynetwork.utils.PreferencesUtilities.getAlarmReceiverInterval;
+import static eu.miaounyan.isthereanynetwork.utils.ServiceUtilities.CACHE_INTERVAL;
+import static eu.miaounyan.isthereanynetwork.utils.ServiceUtilities.getAlarmPendingIntent;
+import static eu.miaounyan.isthereanynetwork.utils.ServiceUtilities.getCacheAlarmPendingIntent;
+import static eu.miaounyan.isthereanynetwork.utils.ServiceUtilities.setAlarmPendingIntent;
+import static eu.miaounyan.isthereanynetwork.utils.ServiceUtilities.setCacheAlarmPendingIntent;
 
 public class MainActivity extends AppCompatActivity {
     /* Timer Attributes */
@@ -75,7 +79,6 @@ public class MainActivity extends AppCompatActivity {
     /* Send */
     private IsThereAnyNetwork isThereAnyNetwork;
     private IsThereAnyNetworkService isThereAnyNetworkService;
-    private DateFormatter dateFormatter;
 
     private Network network;
     private PermissionManager permissionManager;
@@ -85,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
             Manifest.permission.INTERNET, Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
     private static final int PERMISSION_REQUEST = 100;
+
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,13 +104,22 @@ public class MainActivity extends AppCompatActivity {
         LayoutInflater inflater = (LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         LinearLayout parent = findViewById(R.id.main_content_linear_layout);
 
+        prefs = PreferenceManager.getDefaultSharedPreferences(this);
+
         permissionManager = new PermissionManager();
         networkOnCreate(inflater, parent);
         timerScannerOnCreate();
         checkPermissions();
         locationOnCreate(inflater, parent);
         sendOnCreate();
-        startAlarm();
+
+        if (prefs.getBoolean(KEY_PREF_ALARM_RECEIVER, true)) {
+            startAlarm();
+        }
+
+        if (prefs.getBoolean(KEY_PREF_ALARM_RECEIVER_CACHE, true)) {
+            startCacheAlarm();
+        }
     }
 
     // Menu
@@ -137,12 +151,12 @@ public class MainActivity extends AppCompatActivity {
         networkIcon.setImageResource(R.drawable.ic_antenna_icon);
 
         TextView networkTitle = networkView.findViewById(R.id.sensor_title_text_view);
-        networkTitle.setText("Network");
+        networkTitle.setText(R.string.network_view_title);
         networkInfo = networkView.findViewById(R.id.info_text_view);
-        networkInfo.setText("No Data");
+        networkInfo.setText(R.string.no_data_available);
         networkData = networkView.findViewById(R.id.data_text_view);
 
-        network = new Network((TelephonyManager) getBaseContext().getSystemService(Context.TELEPHONY_SERVICE));
+        network = new Network((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE), this);
 
         parent.addView(networkView);
     }
@@ -155,9 +169,9 @@ public class MainActivity extends AppCompatActivity {
         locationIcon.setImageResource(R.drawable.ic_gps_location_icon);
 
         TextView locationTitle = locationView.findViewById(R.id.sensor_title_text_view);
-        locationTitle.setText("GPS Location");
+        locationTitle.setText(R.string.gps_location_view_title);
         locationInfo = locationView.findViewById(R.id.info_text_view);
-        locationInfo.setText("No Data Available");
+        locationInfo.setText(R.string.no_data_available);
         locationData = locationView.findViewById(R.id.data_text_view);
 
         parent.addView(locationView);
@@ -175,18 +189,12 @@ public class MainActivity extends AppCompatActivity {
         timeCountTextView.setText(SCAN_TIME + "");
 
         findViewById(R.id.scan_button).setOnClickListener(view -> {
-            Snackbar.make(view, "Scanning...", Snackbar.LENGTH_LONG);
+            Snackbar.make(view, "Scanning...", Snackbar.LENGTH_LONG).show();
             launchTimer();
         });
     }
 
-    private String getCurrentTimeDate() {
-        Date now = new Date();
-        return dateFormatter.toISO8601String(now);
-    }
-
     private void sendOnCreate() {
-        dateFormatter = new DateFormatter();
         isThereAnyNetwork = new IsThereAnyNetwork();
         isThereAnyNetworkService = isThereAnyNetwork.connect();
 
@@ -194,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendNetworkState(Context context) {
-        if (checkDataConsistency()) {
+        if (checkDataConsistency(gpsTracker, network)) {
             Log.d(this.getClass().getName(), "Sending network state");
             Toast.makeText(context, "Sending...", Toast.LENGTH_LONG).show();
             isThereAnyNetworkService.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), network.getSignalStrength(), network.getOperator(), getCurrentTimeDate(), network.getType()))
@@ -202,7 +210,8 @@ public class MainActivity extends AppCompatActivity {
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(r -> {
                         Log.d(this.getClass().getName(), "Sent network state");
-                        Toast.makeText(context, "Sent " + r.getSignalStrength(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(context, "Sent " + r.getSignalStrength() + " at lat=" +
+                                gpsTracker.getLatitude() + ";lon=" + gpsTracker.getLongitude(), Toast.LENGTH_LONG).show();
                     }, err -> {
                         Log.e(this.getClass().getName(), "Error: " + err);
                         Toast.makeText(context, "Error " + err.getMessage(), Toast.LENGTH_LONG).show();
@@ -213,23 +222,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private boolean checkDataConsistency() {
-        return (-180 <= gpsTracker.getLatitude() && gpsTracker.getLatitude() <= 180) &&
-                (-180 <= gpsTracker.getLongitude() && gpsTracker.getLongitude() <= 180) &&
-                (gpsTracker.getLatitude() != 0 && gpsTracker.getLongitude() != 0) &&
-                (-150 <= network.getSignalStrength() && network.getSignalStrength() < -40) &&
-                (!"Unknown".equals(network.getType()));
-    }
-
+    /**
+     * Called if and only if the application starts (activity onCreate()) and the alarm receiver is
+     * enabled (user preferences)
+     */
     private void startAlarm() {
-        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        setAlarmPendingIntent(this);
 
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval = 5 * 60 * 1000; // minimum is 1 minute as of API 22. 5 minutes here.
+        int interval = getAlarmReceiverInterval(this);
 
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                interval * 1000 * 60, getAlarmPendingIntent());
         Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
+    }
+
+    /**
+     * Called if and only if the application starts (activity onCreate()) and the cache alarm receiver is
+     * enabled (user preferences)
+     */
+    private void startCacheAlarm() {
+        setCacheAlarmPendingIntent(this);
+
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
+                CACHE_INTERVAL * 1000 * 60, getCacheAlarmPendingIntent());
+        Toast.makeText(this, "Cache Alarm Set", Toast.LENGTH_SHORT).show();
     }
 
     private void checkPermissions() {
@@ -302,7 +320,8 @@ public class MainActivity extends AppCompatActivity {
         networkInfo.setText(String.format("Network operator - %s \nNetwork type - %s", networkOperator, networkType));
         networkData.setText(network.getSignalStrength() + " dBm\n\nSignal Level: " + network.getSignalLevel());
 
+        /* Location */
         gpsTracker.determineLocation();
-        locationData.setText(String.format("Lat: %.3f\nLon: %.3f", gpsTracker.getLatitude(), gpsTracker.getLongitude()));
+        locationData.setText(String.format("Lat: %.6f\nLon: %.6f", gpsTracker.getLatitude(), gpsTracker.getLongitude()));
     }
 }

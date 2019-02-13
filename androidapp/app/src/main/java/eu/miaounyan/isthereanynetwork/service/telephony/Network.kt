@@ -1,20 +1,60 @@
 package eu.miaounyan.isthereanynetwork.service.telephony
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
-import android.telephony.PhoneStateListener
-import android.telephony.SignalStrength
-import android.telephony.TelephonyManager
+import android.telephony.*
 import android.util.Log
 import eu.miaounyan.isthereanynetwork.service.PermissionManager
 
-class Network(private val telephonyManager: TelephonyManager) {
+class Network(private val telephonyManager: TelephonyManager, context: Context) {
 
     private val pmanager = PermissionManager()
     private val networkTypeSerializer = NetworkTypeSerializer()
     private var m_signalStrength = 0
     private var m_signalLevel = 0
     private val phoneStateListener = NetworkPhoneStateListener()
+
+    init {
+        determineSignal(context)
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun determineSignal(context: Context) {
+        //This will give info of all sims present inside your mobile
+
+        if (checkPermissions(context)) {
+            val cells = telephonyManager.allCellInfo
+            if (cells != null) {
+                for (i in cells.indices) {
+                    if (cells[i].isRegistered) {
+                        when {
+                            cells[i] is CellInfoWcdma -> {
+                                val cellInfoWcdma = telephonyManager.allCellInfo[0] as CellInfoWcdma
+                                val cellSignalStrengthWcdma = cellInfoWcdma.cellSignalStrength
+                                m_signalStrength = cellSignalStrengthWcdma.dbm
+                                m_signalLevel = cellSignalStrengthWcdma.level
+                            }
+                            cells[i] is CellInfoGsm -> {
+                                val cellInfogsm = telephonyManager.allCellInfo[0] as CellInfoGsm
+                                val cellSignalStrengthGsm = cellInfogsm.cellSignalStrength
+                                m_signalStrength = cellSignalStrengthGsm.dbm
+                                m_signalLevel = cellSignalStrengthGsm.level
+                            }
+                            cells[i] is CellInfoLte -> {
+                                val cellInfoLte = telephonyManager.allCellInfo[0] as CellInfoLte
+                                val cellSignalStrengthLte = cellInfoLte.cellSignalStrength
+                                m_signalStrength = cellSignalStrengthLte.dbm
+                                m_signalLevel = cellSignalStrengthLte.level
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        Log.d(this.javaClass.name, "signalStrength: $m_signalStrength; signalLevel: $m_signalLevel")
+    }
 
     internal inner class NetworkPhoneStateListener : PhoneStateListener() {
         var callback = {}
@@ -24,8 +64,8 @@ class Network(private val telephonyManager: TelephonyManager) {
 
             if (telephonyManager.networkType == TelephonyManager.NETWORK_TYPE_CDMA || telephonyManager.networkType == TelephonyManager.NETWORK_TYPE_GSM) {
                 m_signalStrength = 2 * sigStrength.gsmSignalStrength - 113 // -> dBm
-                Log.d(this.javaClass.name, "Pure GSM Signal Strength: " + sigStrength.gsmSignalStrength +
-                        ", Post-Treatment GSM Signal Strength: " + m_signalStrength)
+                Log.d(this.javaClass.name, "Pure GSM Signal Strength: $sigStrength.gsmSignalStrength, " +
+                        "Post-Treatment GSM Signal Strength: $m_signalStrength")
 
                 try {
                     m_signalLevel = sigStrength.javaClass.getMethod("getGsmLevel").invoke(sigStrength) as Int

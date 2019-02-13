@@ -17,4 +17,11 @@
     <string name="alarm_receiver_title">Alarm Receiver</string>
     <string name="alarm_receiver_summary">Set preferences about automatic data sending</string>
     <string name="preference_alarm_receiver_title">Enable</string>
+    <string name="alarm_receiver_interval_summary">Define interval (in minutes) between data gathering</string>
+    <string name="alarm_receiver_interval_title">Data gathering interval</string>
+    <string name="alarm_receiver_cache_summary">Gathered data are cached before being sent each one hour</string>
+    <string name="alarm_receiver_cache_title">Cache</string>
+    <string name="gps_location_view_title">GPS Location</string>
+    <string name="network_view_title">Network</string>
+    <string name="no_data_available">No Data Available</string>
 </resources>

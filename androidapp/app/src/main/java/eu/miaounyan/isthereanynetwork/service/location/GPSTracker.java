@@ -1,4 +1,4 @@
-package eu.miaounyan.isthereanynetwork.service;
+package eu.miaounyan.isthereanynetwork.service.location;
 
 import android.annotation.SuppressLint;
 import android.app.Service;
@@ -24,6 +24,10 @@ public class GPSTracker extends Service implements LocationListener {
 
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000;
+
+    public GPSTracker() {
+        mContext = getApplicationContext();
+    }
 
     public GPSTracker(Context context) {
         this.mContext = context;
