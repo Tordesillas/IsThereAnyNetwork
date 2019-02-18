@@ -4,7 +4,7 @@ import eu.miaounyan.isthereanynetwork.service.DateFormatter
 import java.util.*
 
 class IsThereAnyNetworkParams(val params: MutableMap<String, String>) : MutableMap<String, String> by params {
-    private val dateFormatter  = DateFormatter();
+    private val dateFormatter = DateFormatter();
 
     fun fromDate(v : Date) : IsThereAnyNetworkParams {
         params["from"] = dateFormatter.toISO8601String(v);
