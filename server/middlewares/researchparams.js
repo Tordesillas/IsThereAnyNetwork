@@ -42,10 +42,6 @@ function researchparams(req, res, next) {
         break;
     }
 
-    console.log(targetHour.lowerHour);
-    console.log(targetHour.upperHour);      
-    console.log(targetHour.hours);
-
     targetHour.redact = {
         "$redact": {
             "$cond": [
