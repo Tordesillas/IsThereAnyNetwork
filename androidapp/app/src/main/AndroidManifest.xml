@@ -40,10 +40,11 @@
                 android:value=".MainActivity" />
         </activity>
 
-        <receiver android:name=".service.background.AlarmReceiver" />
-        <receiver android:name=".service.background.AlarmReceiverCache" />
+        <receiver android:name=".service.background.AlarmReceiver" android:exported="true" />
+        <receiver android:name=".service.background.AlarmReceiverCache" android:exported="true" />
 
         <service android:name=".service.location.GPSTracker" />
+        <service android:name=".service.background.AlarmService" />
     </application>
 
 </manifest>

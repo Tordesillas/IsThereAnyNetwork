@@ -92,6 +92,13 @@ public class GPSTracker extends Service implements LocationListener {
         return longitude;
     }
 
+    public boolean isConsistent() {
+
+        return (-180 <= getLatitude() && getLatitude() <= 180) &&
+                (-180 <= getLongitude() && getLongitude() <= 180) &&
+                (getLatitude() != 0 && getLongitude() != 0);
+    }
+
     @Override
     public void onLocationChanged(Location location) {
         latitude = location.getLatitude();

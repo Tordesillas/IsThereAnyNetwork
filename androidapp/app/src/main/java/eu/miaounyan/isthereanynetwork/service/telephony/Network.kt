@@ -15,66 +15,13 @@ class Network(private val telephonyManager: TelephonyManager, context: Context) 
     private var m_signalLevel = 0
     private val phoneStateListener = NetworkPhoneStateListener()
 
-    init {
-        determineSignal(context)
-    }
-
-    @SuppressLint("MissingPermission")
-    private fun determineSignal(context: Context) {
-        //This will give info of all sims present inside your mobile
-
-        if (checkPermissions(context)) {
-            val cells = telephonyManager.allCellInfo
-            if (cells != null) {
-                for (i in cells.indices) {
-                    if (cells[i].isRegistered) {
-                        when {
-                            cells[i] is CellInfoWcdma -> {
-                                val cellInfoWcdma = telephonyManager.allCellInfo[0] as CellInfoWcdma
-                                val cellSignalStrengthWcdma = cellInfoWcdma.cellSignalStrength
-                                m_signalStrength = cellSignalStrengthWcdma.dbm
-                                m_signalLevel = cellSignalStrengthWcdma.level
-                            }
-                            cells[i] is CellInfoGsm -> {
-                                val cellInfogsm = telephonyManager.allCellInfo[0] as CellInfoGsm
-                                val cellSignalStrengthGsm = cellInfogsm.cellSignalStrength
-                                m_signalStrength = cellSignalStrengthGsm.dbm
-                                m_signalLevel = cellSignalStrengthGsm.level
-                            }
-                            cells[i] is CellInfoLte -> {
-                                val cellInfoLte = telephonyManager.allCellInfo[0] as CellInfoLte
-                                val cellSignalStrengthLte = cellInfoLte.cellSignalStrength
-                                m_signalStrength = cellSignalStrengthLte.dbm
-                                m_signalLevel = cellSignalStrengthLte.level
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        Log.d(this.javaClass.name, "signalStrength: $m_signalStrength; signalLevel: $m_signalLevel")
-    }
-
     internal inner class NetworkPhoneStateListener : PhoneStateListener() {
         var callback = {}
 
         override fun onSignalStrengthsChanged(sigStrength: SignalStrength) {
             super.onSignalStrengthsChanged(sigStrength)
 
-            if (telephonyManager.networkType == TelephonyManager.NETWORK_TYPE_CDMA || telephonyManager.networkType == TelephonyManager.NETWORK_TYPE_GSM) {
-                m_signalStrength = 2 * sigStrength.gsmSignalStrength - 113 // -> dBm
-                Log.d(this.javaClass.name, "Pure GSM Signal Strength: $sigStrength.gsmSignalStrength, " +
-                        "Post-Treatment GSM Signal Strength: $m_signalStrength")
-
-                try {
-                    m_signalLevel = sigStrength.javaClass.getMethod("getGsmLevel").invoke(sigStrength) as Int
-                    Log.d(this.javaClass.name, "Signal Strength Level: $m_signalLevel")
-                } catch (ex: Exception) {
-                    Log.v("Error", "Couldn't retrieve signal level - " + ex.message)
-                }
-
-            } else if (telephonyManager.networkType == TelephonyManager.NETWORK_TYPE_LTE) {
+            if (telephonyManager.networkType == TelephonyManager.NETWORK_TYPE_LTE) {
                 try {
                     m_signalStrength = sigStrength.javaClass.getMethod("getLteRsrp").invoke(sigStrength) as Int
                     Log.d(this.javaClass.name, "getLteRsrp: $m_signalStrength")
@@ -85,12 +32,25 @@ class Network(private val telephonyManager: TelephonyManager, context: Context) 
                     Log.v("Error", "Couldn't retrieve either signal strength or signal level - " + ex.message)
                 }
 
-                callback()
                 // Alternative
                 //signalStrength = getLTESignalStrength(sigStrength);
                 // There's also getLTEdBm which is a getter of mLteRsrp
                 //networkData.setText(m_signalStrength.toString() + " dBm\n\nSignal Level: " + m_signalLevel)
+            } else {
+                //assume that everything that's not LTE is akin to GSM, too much cases to take into account otherwise
+                //if (telephonyManager.networkType == TelephonyManager.NETWORK_TYPE_CDMA || telephonyManager.networkType == TelephonyManager.NETWORK_TYPE_GSM) {
+                m_signalStrength = 2 * sigStrength.gsmSignalStrength - 113 // -> dBm
+                Log.d(this.javaClass.name, "Pure GSM Signal Strength: $sigStrength.gsmSignalStrength, " +
+                        "Post-Treatment GSM Signal Strength: $m_signalStrength")
+
+                try {
+                    m_signalLevel = sigStrength.javaClass.getMethod("getGsmLevel").invoke(sigStrength) as Int
+                    Log.d(this.javaClass.name, "Signal Strength Level: $m_signalLevel")
+                } catch (ex: Exception) {
+                    Log.v("Error", "Couldn't retrieve signal level - " + ex.message)
+                }
             }
+            callback()
         }
     }
 
@@ -115,9 +75,15 @@ class Network(private val telephonyManager: TelephonyManager, context: Context) 
 
     fun once(context: Context, callback: () -> Unit) {
         listen(context) {
-            callback()
-            stop(context)
+            if (isConsistent()) { // Listen until we get consistent data
+                callback()
+                stop(context)
+            }
         }
+    }
+
+    fun isConsistent() : Boolean {
+        return -150 <= signalStrength && signalStrength < -40 && "Unknown" != type;
     }
 
     private fun getLTESignalStrength(sigStrength: SignalStrength): Int {

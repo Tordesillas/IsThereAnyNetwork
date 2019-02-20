@@ -1,5 +1,6 @@
 package eu.miaounyan.isthereanynetwork.service.isthereanynetwork
 
+import eu.miaounyan.isthereanynetwork.model.NetworkState
 import io.reactivex.Observable
 import retrofit2.http.*
 

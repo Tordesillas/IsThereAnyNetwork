@@ -4,6 +4,7 @@ import android.Manifest;
 import android.app.AlarmManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -36,15 +37,17 @@ import android.widget.Toast;
 import eu.miaounyan.isthereanynetwork.controller.MapActivity;
 import eu.miaounyan.isthereanynetwork.controller.PreferencesActivity;
 import eu.miaounyan.isthereanynetwork.service.PermissionManager;
+import eu.miaounyan.isthereanynetwork.service.background.AlarmReceiver;
+import eu.miaounyan.isthereanynetwork.service.background.AlarmReceiverCache;
+import eu.miaounyan.isthereanynetwork.service.background.AlarmSetter;
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetwork;
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetworkService;
-import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.NetworkState;
+import eu.miaounyan.isthereanynetwork.model.NetworkState;
 import eu.miaounyan.isthereanynetwork.service.location.GPSTracker;
 import eu.miaounyan.isthereanynetwork.service.telephony.Network;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-import static eu.miaounyan.isthereanynetwork.utils.DataUtilities.checkDataConsistency;
 import static eu.miaounyan.isthereanynetwork.utils.DataUtilities.getCurrentTimeDate;
 import static eu.miaounyan.isthereanynetwork.utils.PreferencesUtilities.KEY_PREF_ALARM_RECEIVER;
 import static eu.miaounyan.isthereanynetwork.utils.PreferencesUtilities.KEY_PREF_ALARM_RECEIVER_CACHE;
@@ -83,6 +86,8 @@ public class MainActivity extends AppCompatActivity {
     private Network network;
     private PermissionManager permissionManager;
 
+    private AlarmSetter alarmSetter;
+
     /* Permission */
     private static final String[] PERMISSIONS = {
             Manifest.permission.INTERNET, Manifest.permission.READ_PHONE_STATE,
@@ -107,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
         permissionManager = new PermissionManager();
+        alarmSetter = new AlarmSetter(this);
         networkOnCreate(inflater, parent);
         timerScannerOnCreate();
         checkPermissions();
@@ -114,11 +120,11 @@ public class MainActivity extends AppCompatActivity {
         sendOnCreate();
 
         if (prefs.getBoolean(KEY_PREF_ALARM_RECEIVER, true)) {
-            startAlarm();
+            alarmSetter.startAlarm();
         }
 
         if (prefs.getBoolean(KEY_PREF_ALARM_RECEIVER_CACHE, true)) {
-            startCacheAlarm();
+            alarmSetter.startCache();
         }
     }
 
@@ -202,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendNetworkState(Context context) {
-        if (checkDataConsistency(gpsTracker, network)) {
+        //if (checkDataConsistency(gpsTracker, network)) {
             Log.d(this.getClass().getName(), "Sending network state");
             Toast.makeText(context, "Sending...", Toast.LENGTH_LONG).show();
             isThereAnyNetworkService.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), network.getSignalStrength(), network.getOperator(), getCurrentTimeDate(), network.getType()))
@@ -216,38 +222,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(this.getClass().getName(), "Error: " + err);
                         Toast.makeText(context, "Error " + err.getMessage(), Toast.LENGTH_LONG).show();
                     });
-        } else {
+        /*} else {
             Log.d(this.getClass().getName(), "Can't send network state, data are missing");
             Toast.makeText(context, "Missing data, check connectivity", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    /**
-     * Called if and only if the application starts (activity onCreate()) and the alarm receiver is
-     * enabled (user preferences)
-     */
-    private void startAlarm() {
-        setAlarmPendingIntent(this);
-
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        int interval = getAlarmReceiverInterval(this);
-
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-                interval * 1000 * 60, getAlarmPendingIntent());
-        Toast.makeText(this, "Alarm Set", Toast.LENGTH_SHORT).show();
-    }
-
-    /**
-     * Called if and only if the application starts (activity onCreate()) and the cache alarm receiver is
-     * enabled (user preferences)
-     */
-    private void startCacheAlarm() {
-        setCacheAlarmPendingIntent(this);
-
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
-                CACHE_INTERVAL * 1000 * 60, getCacheAlarmPendingIntent());
-        Toast.makeText(this, "Cache Alarm Set", Toast.LENGTH_SHORT).show();
+        }*/
     }
 
     private void checkPermissions() {
