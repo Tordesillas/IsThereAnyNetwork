@@ -208,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void sendNetworkState(Context context) {
-        //if (checkDataConsistency(gpsTracker, network)) {
+        if (network.isConsistent() && gpsTracker.isConsistent()) {
             Log.d(this.getClass().getName(), "Sending network state");
             Toast.makeText(context, "Sending...", Toast.LENGTH_LONG).show();
             isThereAnyNetworkService.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), network.getSignalStrength(), network.getOperator(), getCurrentTimeDate(), network.getType()))
@@ -222,10 +222,10 @@ public class MainActivity extends AppCompatActivity {
                         Log.e(this.getClass().getName(), "Error: " + err);
                         Toast.makeText(context, "Error " + err.getMessage(), Toast.LENGTH_LONG).show();
                     });
-        /*} else {
+        } else {
             Log.d(this.getClass().getName(), "Can't send network state, data are missing");
-            Toast.makeText(context, "Missing data, check connectivity", Toast.LENGTH_LONG).show();
-        }*/
+            Toast.makeText(context, "Missing data, check connectivity & GPS", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void checkPermissions() {
