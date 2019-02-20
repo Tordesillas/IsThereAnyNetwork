@@ -10,6 +10,7 @@ import eu.miaounyan.isthereanynetwork.model.NetworkState
 import eu.miaounyan.isthereanynetwork.model.PendingNetworkStates
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetwork
 import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetworkService
+import eu.miaounyan.isthereanynetwork.utils.PermittedToast
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
@@ -46,11 +47,11 @@ class AlarmService : Service() {
                             .observeOn(AndroidSchedulers.mainThread())
                             .subscribe({ r ->
                                 Log.d(this.javaClass.name, "Sent network state")
-                                Toast.makeText(applicationContext, "Sent " + r.signalStrength + " at lat=" +
-                                        r.latitude + ";lon=" + r.longitude, Toast.LENGTH_LONG).show()
+                                PermittedToast.makeText(applicationContext, "Sent " + r.signalStrength + " at lat=" +
+                                        r.latitude + ";lon=" + r.longitude, Toast.LENGTH_LONG)?.show()
                             }, { err ->
                                 Log.e(this.javaClass.name, "Error: $err")
-                                Toast.makeText(applicationContext, "Error " + err.message, Toast.LENGTH_LONG).show()
+                                PermittedToast.makeText(applicationContext, "Error " + err.message, Toast.LENGTH_LONG)?.show()
 
                                 // error while sending, enqueue again
                                 pendingNetworkStates.add(applicationContext, it)

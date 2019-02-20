@@ -45,6 +45,7 @@ import eu.miaounyan.isthereanynetwork.service.isthereanynetwork.IsThereAnyNetwor
 import eu.miaounyan.isthereanynetwork.model.NetworkState;
 import eu.miaounyan.isthereanynetwork.service.location.GPSTracker;
 import eu.miaounyan.isthereanynetwork.service.telephony.Network;
+import eu.miaounyan.isthereanynetwork.utils.PermittedToast;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
@@ -89,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
     private AlarmSetter alarmSetter;
 
     /* Permission */
-    private static final String[] PERMISSIONS = {
+    public static final String[] PERMISSIONS = {
             Manifest.permission.INTERNET, Manifest.permission.READ_PHONE_STATE,
             Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION};
     private static final int PERMISSION_REQUEST = 100;
@@ -210,21 +211,21 @@ public class MainActivity extends AppCompatActivity {
     private void sendNetworkState(Context context) {
         if (network.isConsistent() && gpsTracker.isConsistent()) {
             Log.d(this.getClass().getName(), "Sending network state");
-            Toast.makeText(context, "Sending...", Toast.LENGTH_LONG).show();
+            PermittedToast.makeText(context, "Sending...", Toast.LENGTH_LONG).show();
             isThereAnyNetworkService.sendNetworkState(new NetworkState(gpsTracker.getLatitude(), gpsTracker.getLongitude(), network.getSignalStrength(), network.getOperator(), getCurrentTimeDate(), network.getType()))
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(r -> {
                         Log.d(this.getClass().getName(), "Sent network state");
-                        Toast.makeText(context, "Sent " + r.getSignalStrength() + " at lat=" +
+                        PermittedToast.makeText(context, "Sent " + r.getSignalStrength() + " at lat=" +
                                 gpsTracker.getLatitude() + ";lon=" + gpsTracker.getLongitude(), Toast.LENGTH_LONG).show();
                     }, err -> {
                         Log.e(this.getClass().getName(), "Error: " + err);
-                        Toast.makeText(context, "Error " + err.getMessage(), Toast.LENGTH_LONG).show();
+                        PermittedToast.makeText(context, "Error " + err.getMessage(), Toast.LENGTH_LONG).show();
                     });
         } else {
             Log.d(this.getClass().getName(), "Can't send network state, data are missing");
-            Toast.makeText(context, "Missing data, check connectivity & GPS", Toast.LENGTH_LONG).show();
+            PermittedToast.makeText(context, "Missing data, check connectivity & GPS", Toast.LENGTH_LONG).show();
         }
     }
 

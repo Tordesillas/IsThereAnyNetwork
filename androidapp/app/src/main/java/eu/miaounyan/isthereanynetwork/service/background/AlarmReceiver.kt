@@ -14,6 +14,7 @@ import eu.miaounyan.isthereanynetwork.model.PendingNetworkStates
 import eu.miaounyan.isthereanynetwork.service.location.GPSTracker
 import eu.miaounyan.isthereanynetwork.service.telephony.Network
 import eu.miaounyan.isthereanynetwork.utils.DataUtilities.getCurrentTimeDate
+import eu.miaounyan.isthereanynetwork.utils.PermittedToast
 import eu.miaounyan.isthereanynetwork.utils.PreferencesUtilities.KEY_PREF_ALARM_RECEIVER_CACHE
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -24,7 +25,7 @@ class AlarmReceiver(val isThereAnyNetwork: IsThereAnyNetwork = IsThereAnyNetwork
     private val pendingNetworkStates = PendingNetworkStates()
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Toast.makeText(context, "Sending network state...", Toast.LENGTH_LONG).show();
+        PermittedToast.makeText(context, "Sending network state...", Toast.LENGTH_LONG)?.show();
 
         val network = context?.run { getSystemService(Context.TELEPHONY_SERVICE)?.let { it as? TelephonyManager }?.let { Network(it, this) } }
 

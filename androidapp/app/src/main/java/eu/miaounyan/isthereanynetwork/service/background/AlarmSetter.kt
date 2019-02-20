@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.IntentFilter
 import android.util.Log
 import android.widget.Toast
+import eu.miaounyan.isthereanynetwork.utils.PermittedToast
 import eu.miaounyan.isthereanynetwork.utils.PreferencesUtilities
 import eu.miaounyan.isthereanynetwork.utils.ServiceUtilities
 
@@ -58,7 +59,7 @@ class AlarmSetter(private val context: Context) {
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
                 PreferencesUtilities.getAlarmReceiverInterval(context).toLong(), ServiceUtilities.getAlarmPendingIntent())
 
-        Toast.makeText(context, "Alarm Set", Toast.LENGTH_SHORT).show()
+        PermittedToast.makeText(context, "Alarm Set", Toast.LENGTH_SHORT)?.show()
         Log.d(this.javaClass.name, "Alarm Set")
     }
 
@@ -71,7 +72,7 @@ class AlarmSetter(private val context: Context) {
 
         //unregisterAlarm()
 
-        Toast.makeText(context, "Alarm Stopped", Toast.LENGTH_SHORT).show()
+        PermittedToast.makeText(context, "Alarm Stopped", Toast.LENGTH_SHORT)?.show()
         Log.d(this.javaClass.name, "Alarm Stopped")
     }
 
@@ -88,7 +89,7 @@ class AlarmSetter(private val context: Context) {
         manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(),
                 (ServiceUtilities.CACHE_INTERVAL * 1000 * 60).toLong(), ServiceUtilities.getCacheAlarmPendingIntent())
 
-        Toast.makeText(context, "Alarm receiver cache enabled", Toast.LENGTH_SHORT).show()
+        PermittedToast.makeText(context, "Alarm receiver cache enabled", Toast.LENGTH_SHORT)?.show()
         Log.d(this.javaClass.name, "Alarm receiver cache enabled")
     }
 
@@ -98,7 +99,7 @@ class AlarmSetter(private val context: Context) {
 
         //unregisterAlarmCache()
 
-        Toast.makeText(context, "Alarm receiver cache disabled", Toast.LENGTH_SHORT).show()
+        PermittedToast.makeText(context, "Alarm receiver cache disabled", Toast.LENGTH_SHORT)?.show()
         Log.d(this.javaClass.name, "Alarm receiver cache disabled")
     }
 }

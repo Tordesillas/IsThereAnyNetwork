@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.widget.Toast
 import eu.miaounyan.isthereanynetwork.model.PendingNetworkStates
+import eu.miaounyan.isthereanynetwork.utils.PermittedToast
 
 
 class AlarmReceiverCache()
@@ -13,7 +14,7 @@ class AlarmReceiverCache()
 
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        Toast.makeText(context, "Sending network state from cache...", Toast.LENGTH_LONG).show();
+        PermittedToast.makeText(context, "Sending network state from cache...", Toast.LENGTH_LONG)?.show();
 
         val networkStates = pendingNetworkStates.fetch(context)
         pendingNetworkStates.removeAll(context)
